@@ -267,9 +267,8 @@ See [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) for milestone s
 
 ## 📄 License & data provenance
 
-- **Code**: no license file is committed yet — choose one before publishing (MIT or
-  Apache-2.0 are typical for a portfolio). Third-party models/libraries keep their own
-  licenses (e.g. DistilBERT/Mistral are Apache-2.0).
+- **Code**: [MIT](LICENSE). Third-party models/libraries keep their own licenses (e.g.
+  DistilBERT/Mistral are Apache-2.0).
 - **Data**: the source Novartis clinical-trial documents are treated as
   **non-redistributable** — they are gitignored and never committed. Only a clearly-labeled
   **synthetic** sample ships in this repository. Do not add real trial PDFs to the public repo.
