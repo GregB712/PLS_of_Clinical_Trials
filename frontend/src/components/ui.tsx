@@ -32,7 +32,14 @@ export function Banner({ kind, children }: { kind: "error" | "info" | "warn"; ch
     info: "border-sky-200 bg-sky-50 text-sky-700",
     warn: "border-amber-200 bg-amber-50 text-amber-800",
   };
-  return <div className={`rounded-lg border px-4 py-3 text-sm ${styles[kind]}`}>{children}</div>;
+  return (
+    <div
+      role={kind === "error" ? "alert" : undefined}
+      className={`rounded-lg border px-4 py-3 text-sm ${styles[kind]}`}
+    >
+      {children}
+    </div>
+  );
 }
 
 export function Disclaimer() {

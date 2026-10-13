@@ -33,6 +33,40 @@ For full details, please refer to the [ikee.lib.auth.gr link](http://ikee.lib.au
 
 ---
 
+## 🏗️ Architecture
+
+```mermaid
+flowchart LR
+  PDF["Clinical-trial PDFs"] -->|ingest / pair| DB[("SQLite / Postgres")]
+  PDF -->|MarkItDown| MD["Markdown"]
+  DB --> RAG["Chunks + embeddings"]
+  DB --> API["FastAPI"]
+  RAG --> API
+  subgraph Backends
+    Lead["Lead baseline"]
+    HF["Local HF / DistilBERT"]
+    Prov["Anthropic / OpenAI / Gemini"]
+  end
+  Backends --> API
+  API --> UI["React SPA"]
+```
+
+**Data flow:** PDFs are ingested into structured records (and optionally Markdown), stored
+in the database, and chunked + embedded for retrieval. The FastAPI backend exposes trials,
+summarization (across local and hosted backends), RAG, and benchmark results; the React SPA
+consumes that API. Everything runs CPU-only by default; GPUs, hosted providers, and stronger
+embeddings are optional extras.
+
+## 📸 Screenshots
+
+_Screenshots to be added._ Capture the running UI (`docker compose up --build`, then
+http://localhost:8080) and drop images under `docs/screenshots/`, e.g.:
+
+```markdown
+![Live demo](docs/screenshots/demo.png)
+![Model comparison](docs/screenshots/dashboard.png)
+```
+
 ## 🚀 Technologies Used
 
 This thesis leverages modern machine learning and natural language processing (NLP) tools to build and evaluate models for plain language summarization of clinical trial documents. Key technologies and tools include:
@@ -208,6 +242,37 @@ cd frontend && npm run build && npm test   # frontend type-check, bundle, and un
 ```
 
 See [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) for milestone status and what's next.
+
+## ⚠️ Limitations & responsible use
+
+- Generated summaries are **AI-generated research communication, not medical advice**, and
+  may contain errors — verify against the source document.
+- The project is a research/portfolio system; it is **not clinically validated** and makes
+  no claim of being better than existing methods.
+- n-gram metrics (ROUGE/BLEU/F1) understate faithful paraphrases and are reported as
+  complementary signals, not proof of quality. Numbers shown on the synthetic sample are
+  illustrative, not real results.
+- The default RAG embedder is dependency-free and deliberately weak; retrieval improves with
+  the optional `[rag]` sentence-transformer embedder.
+- The thesis's extractive-QA framing is preserved as an honest negative result (see
+  `docs/PROJECT_AUDIT.md`), not as a recommended approach.
+
+## 🗺️ Roadmap
+
+- Flesh out dataset-explorer filters and cross-study RAG queries.
+- Move vector search to **pgvector** at scale; OCR fallback for scanned PDFs.
+- Expand evaluation (BERTScore, readability, factual-consistency signals, human rubric).
+- Authentication + per-user isolation for a public multi-user deployment (see
+  `docs/SECURITY.md`).
+
+## 📄 License & data provenance
+
+- **Code**: no license file is committed yet — choose one before publishing (MIT or
+  Apache-2.0 are typical for a portfolio). Third-party models/libraries keep their own
+  licenses (e.g. DistilBERT/Mistral are Apache-2.0).
+- **Data**: the source Novartis clinical-trial documents are treated as
+  **non-redistributable** — they are gitignored and never committed. Only a clearly-labeled
+  **synthetic** sample ships in this repository. Do not add real trial PDFs to the public repo.
 
 ## 📝 Citation
 

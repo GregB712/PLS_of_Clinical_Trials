@@ -225,8 +225,23 @@ Docker in the dev environment) — they are syntax-checked and documented as bui
 - **Verify:** `ruff` clean; `pytest` (API leak-free-500 test added); Compose YAML parses,
   `entrypoint.sh` passes `sh -n`, Makefile targets expand. Docker build: unverified here. ✔
 
-## Later milestones
-- **M9** Portfolio polish (accessibility, Recharts code-splitting, screenshots, responsive pass).
+## Milestone 9 — Portfolio polish ✅ (done, verified)
+
+Status: implemented and verified (frontend build + 8 tests green; main bundle 608→212 KB).
+
+- **Bundle**: route-level lazy loading (`React.lazy` + `Suspense`) splits each page into its
+  own chunk — the initial bundle drops from ~608 KB to ~212 KB and Recharts loads only with
+  the dashboard. The 500 KB warning is gone.
+- **Accessibility**: skip-to-content link + `<main id>` landmark, `aria-label` on the primary
+  nav (NavLink sets `aria-current`), visible `focus-visible` rings on all interactive
+  elements, `role="alert"` on error banners, `role="status"` spinner, `lang="en"`.
+- **README**: Mermaid architecture diagram + data-flow narrative, screenshots section (with
+  capture instructions), limitations & responsible-use, roadmap, and license & data
+  provenance.
+
+Open items (need you / can't be done headless): add real **screenshots** to
+`docs/screenshots/` and choose a **code LICENSE** (MIT/Apache-2.0 recommended) — the repo
+documents provenance but intentionally ships no LICENSE file yet.
 
 Each later milestone starts only after the prior one is runnable and tested, per execution rules.
 
