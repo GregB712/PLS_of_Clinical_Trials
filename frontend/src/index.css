@@ -1,6 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Brand palette as Tailwind v4 theme tokens → generates bg-brand, text-brand, etc. */
+@theme {
+  --color-brand: #0f766e;
+  --color-brand-dark: #115e59;
+}
 
 :root {
   color-scheme: light;
@@ -40,4 +44,3 @@ textarea:focus-visible {
   clip: auto;
   white-space: normal;
 }
-
