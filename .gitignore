@@ -1,0 +1,60 @@
+# ---------------------------------------------------------------------------
+# Non-redistributable source data (Novartis clinical-trial PDFs) and anything
+# derived from it. These are kept LOCAL-ONLY by policy. See docs/DATASET_AND_PIPELINE.md.
+# ---------------------------------------------------------------------------
+ClinicalTrials_Dataset/
+data/raw/
+data/interim/
+data/processed/
+*.pdf
+database*.json
+FinalDataset/
+TrialsOutput/
+split_markdown_files/
+
+# Model checkpoints / weights (never commit large binaries)
+*.gguf
+*.safetensors
+*.bin
+*.pt
+*.ckpt
+results/
+trained_model*/
+checkpoints/
+artifacts/
+
+# Local databases (SQLite). Alembic migrations under migrations/versions/ ARE committed.
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.python-version
+
+# Tooling / caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+.coverage
+htmlcov/
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/

@@ -1,0 +1,146 @@
+[
+  {
+    "trial_name": "SYN001A2101",
+    "source": "synthetic",
+    "report_sections": {
+      "Objectives": "To evaluate whether fictozumab reduces joint pain in adults with the invented condition synthralgia compared with placebo.",
+      "Study Start/End Dates": "The study ran from January 2021 to March 2022.",
+      "Reason for Termination": "The trial completed as planned; it was not stopped early.",
+      "Study Design/Methodology": "A randomized, double-blind, placebo-controlled Phase 2 trial. Participants received either fictozumab or placebo by injection every 4 weeks.",
+      "Study Population: Key Inclusion/Exclusion Criteria": "Adults aged 18 to 65 with moderate synthralgia for at least 6 months. People with other inflammatory diseases were excluded.",
+      "Statistical Methods": "The primary endpoint was analyzed using a mixed model for repeated measures at week 24.",
+      "Trial Analysis": "At week 24, fictozumab lowered the pain score by 3.1 points versus 1.2 for placebo, a statistically significant difference. The most common side effect was mild injection-site redness.",
+      "Conclusion": "Fictozumab reduced synthralgia pain more than placebo and was generally well tolerated over 24 weeks."
+    },
+    "summary_sections": {
+      "Why was the research needed?": "Doctors wanted to know if a medicine called fictozumab could ease the joint pain of synthralgia better than a dummy treatment.",
+      "How long was the trial?": "The trial lasted a little over one year, from early 2021 to spring 2022.",
+      "Who was in this clinical trial?": "Adults between 18 and 65 who had moderate synthralgia for at least six months took part.",
+      "What treatments did the participants take?": "People received either fictozumab or a placebo as an injection once every four weeks.",
+      "What happened during the trial?": "Neither the participants nor the doctors knew who got the real medicine until the end, so the results would be fair.",
+      "What were the results of the trial?": "People taking fictozumab had noticeably less joint pain than those on placebo.",
+      "What adverse events did participants report?": "The most common problem was mild redness where the injection was given.",
+      "How has this trial helped?": "It showed fictozumab can reduce synthralgia pain and was mostly well tolerated, guiding future studies."
+    }
+  },
+  {
+    "trial_name": "SYN002B2202",
+    "source": "synthetic",
+    "report_sections": {
+      "Objectives": "To assess the safety of imaginib in adults with the fictional disorder cardiospasmosis.",
+      "Study Start/End Dates": "Enrollment began in June 2020 and the last visit occurred in December 2021.",
+      "Reason for Termination": "The study ended after reaching its planned enrollment.",
+      "Study Design/Methodology": "An open-label Phase 1 safety study in which all participants received imaginib tablets daily.",
+      "Study Population: Key Inclusion/Exclusion Criteria": "Adults with stable cardiospasmosis and normal kidney function. Pregnant participants were excluded.",
+      "Statistical Methods": "Safety events were summarized with descriptive statistics; no formal hypothesis test was performed.",
+      "Trial Analysis": "Of 40 participants, 6 reported headache and 2 reported nausea. No serious adverse events occurred.",
+      "Conclusion": "Imaginib was well tolerated with only mild side effects, supporting further study."
+    },
+    "summary_sections": {
+      "Why was the research needed?": "Researchers needed to learn whether a new tablet called imaginib was safe for people with cardiospasmosis.",
+      "How long was the trial?": "It ran for about eighteen months, from mid-2020 to the end of 2021.",
+      "Who was in this clinical trial?": "Adults whose cardiospasmosis was stable and whose kidneys worked normally joined the study.",
+      "What treatments did the participants take?": "Everyone took imaginib as a tablet once a day; there was no placebo group.",
+      "What happened during the trial?": "Everyone knew they were getting imaginib, and doctors watched closely for any side effects.",
+      "What were the results of the trial?": "Most people had no problems; a few had mild headaches or nausea and none had serious issues.",
+      "What adverse events did participants report?": "Six people had headaches and two felt nauseous; no serious events happened.",
+      "How has this trial helped?": "It suggested imaginib is safe enough to test further in larger studies."
+    }
+  },
+  {
+    "trial_name": "SYN003C2303",
+    "source": "synthetic",
+    "report_sections": {
+      "Objectives": "To compare placebol against standard care for slowing the made-up condition neurofade.",
+      "Study Start/End Dates": "The study took place between September 2019 and August 2021.",
+      "Reason for Termination": "Completed per protocol.",
+      "Study Design/Methodology": "A randomized Phase 3 trial comparing placebol plus standard care with standard care alone.",
+      "Study Population: Key Inclusion/Exclusion Criteria": "Adults with early-stage neurofade. People who had taken similar medicines before were excluded.",
+      "Statistical Methods": "The primary analysis used a Cox proportional hazards model for time to disease progression.",
+      "Trial Analysis": "Placebol slowed progression with a hazard ratio of 0.7 compared with standard care. Dizziness was the most frequent side effect.",
+      "Conclusion": "Adding placebol to standard care slowed neurofade progression with manageable side effects."
+    },
+    "summary_sections": {
+      "Why was the research needed?": "The team wanted to find out if adding placebol to usual care could slow down neurofade.",
+      "How long was the trial?": "The trial ran for roughly two years, from autumn 2019 to summer 2021.",
+      "Who was in this clinical trial?": "Adults in the early stages of neurofade who had not used similar medicines took part.",
+      "What treatments did the participants take?": "Some people got placebol together with their usual care, while others got usual care only.",
+      "What happened during the trial?": "Participants were randomly placed into the two groups so the comparison would be fair.",
+      "What were the results of the trial?": "People who added placebol had their disease get worse more slowly than those on usual care alone.",
+      "What adverse events did participants report?": "Dizziness was the side effect people mentioned most often.",
+      "How has this trial helped?": "It showed placebol can slow neurofade when added to standard care, which may help future patients."
+    }
+  },
+  {
+    "trial_name": "SYN004D2104",
+    "source": "synthetic",
+    "report_sections": {
+      "Objectives": "To test whether mockazine improves breathing in children with the invented illness pulmonade.",
+      "Study Start/End Dates": "The trial ran from February 2022 to November 2022.",
+      "Reason for Termination": "Stopped early for administrative reasons after a sponsor decision, not for safety.",
+      "Study Design/Methodology": "A randomized, double-blind Phase 2 study of inhaled mockazine versus placebo twice daily.",
+      "Study Population: Key Inclusion/Exclusion Criteria": "Children aged 6 to 12 with mild pulmonade. Those with other lung conditions were excluded.",
+      "Statistical Methods": "Lung function change from baseline was compared between groups using analysis of covariance.",
+      "Trial Analysis": "Because enrollment ended early, only 18 children participated and no firm conclusions on effectiveness could be drawn. Cough was reported by 3 children.",
+      "Conclusion": "The early stop limited the findings; mockazine appeared safe but its benefit remained unclear."
+    },
+    "summary_sections": {
+      "Why was the research needed?": "Doctors hoped to see whether an inhaled medicine called mockazine could help children with pulmonade breathe better.",
+      "How long was the trial?": "The trial lasted about nine months during 2022.",
+      "Who was in this clinical trial?": "Children aged six to twelve who had mild pulmonade were invited to join.",
+      "What treatments did the participants take?": "Children breathed in either mockazine or a placebo twice every day.",
+      "What happened during the trial?": "The study was stopped early for business reasons, not because anyone was harmed, so fewer children took part than planned.",
+      "What were the results of the trial?": "Because so few children joined, the researchers could not say for sure whether mockazine helped.",
+      "What adverse events did participants report?": "A few children reported a cough; no serious problems were seen.",
+      "How has this trial helped?": "Even though it ended early, it gave early safety information to guide later research."
+    }
+  },
+  {
+    "trial_name": "SYN005E2205",
+    "source": "synthetic",
+    "report_sections": {
+      "Objectives": "To determine whether notadrug lowers blood sugar in adults with the fictional condition glucosemia.",
+      "Study Start/End Dates": "The study was conducted from April 2021 to October 2022.",
+      "Reason for Termination": "Completed as planned.",
+      "Study Design/Methodology": "A randomized, double-blind Phase 3 trial comparing notadrug tablets with placebo over 52 weeks.",
+      "Study Population: Key Inclusion/Exclusion Criteria": "Adults with glucosemia whose blood sugar was not controlled by diet alone. People on insulin were excluded.",
+      "Statistical Methods": "The change in a blood-sugar marker at week 52 was analyzed with a mixed model for repeated measures.",
+      "Trial Analysis": "Notadrug lowered the blood-sugar marker by 1.1 percent versus 0.2 percent for placebo. Low blood sugar episodes were uncommon and mild.",
+      "Conclusion": "Notadrug improved blood-sugar control over one year with few low-sugar episodes."
+    },
+    "summary_sections": {
+      "Why was the research needed?": "Researchers wanted to know if a tablet called notadrug could help lower blood sugar in people with glucosemia.",
+      "How long was the trial?": "The trial ran for about a year and a half, from spring 2021 to autumn 2022.",
+      "Who was in this clinical trial?": "Adults with glucosemia that diet alone did not control, and who were not using insulin, took part.",
+      "What treatments did the participants take?": "People took either notadrug or a placebo as a tablet for 52 weeks.",
+      "What happened during the trial?": "Participants were randomly assigned to the two groups, and neither they nor their doctors knew which they received.",
+      "What were the results of the trial?": "People taking notadrug had better blood-sugar control than those on placebo.",
+      "What adverse events did participants report?": "Episodes of low blood sugar were uncommon and mild.",
+      "How has this trial helped?": "It showed notadrug can improve blood-sugar control, which may help treat glucosemia."
+    }
+  },
+  {
+    "trial_name": "SYN006F2306",
+    "source": "synthetic",
+    "report_sections": {
+      "Objectives": "To evaluate whether examplemab reduces flare-ups in adults with the made-up skin condition dermafable.",
+      "Study Start/End Dates": "The study ran from July 2020 to July 2022.",
+      "Reason for Termination": "Completed per protocol.",
+      "Study Design/Methodology": "A randomized, double-blind Phase 3 trial of examplemab infusions versus placebo every 8 weeks.",
+      "Study Population: Key Inclusion/Exclusion Criteria": "Adults with moderate-to-severe dermafable and at least two flare-ups in the prior year. People with active infections were excluded.",
+      "Statistical Methods": "The yearly flare-up rate was compared between groups using a negative binomial model.",
+      "Trial Analysis": "Examplemab reduced the yearly flare-up rate by about 45 percent compared with placebo. Common side effects were mild cold-like symptoms.",
+      "Conclusion": "Examplemab reduced dermafable flare-ups compared with placebo and was generally well tolerated over two years."
+    },
+    "summary_sections": {
+      "Why was the research needed?": "The team wanted to learn whether a medicine called examplemab could cut down the number of dermafable flare-ups.",
+      "How long was the trial?": "The trial lasted about two years, from mid-2020 to mid-2022.",
+      "Who was in this clinical trial?": "Adults with moderate-to-severe dermafable who had at least two flare-ups in the previous year joined.",
+      "What treatments did the participants take?": "People received either examplemab or a placebo as an infusion every eight weeks.",
+      "What happened during the trial?": "Participants were randomly assigned to the groups, and the treatment identity was kept hidden to keep results fair.",
+      "What were the results of the trial?": "People taking examplemab had far fewer flare-ups than those on placebo.",
+      "What adverse events did participants report?": "The most common side effects were mild cold-like symptoms.",
+      "How has this trial helped?": "It showed examplemab can reduce dermafable flare-ups, offering a possible option for future patients."
+    }
+  }
+]

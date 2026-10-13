@@ -55,6 +55,149 @@ Additional techniques applied include:
 
 ---
 
+## 🔁 Reproducible research core
+
+> This section documents an in-progress upgrade that makes the thesis pipeline
+> reproducible. The original thesis code is preserved **verbatim** in `Extra Code/`,
+> `Preprocess Dataset/`, and `model.ipynb`. Planning and findings live in [`docs/`](docs/)
+> — start with [`docs/PROJECT_AUDIT.md`](docs/PROJECT_AUDIT.md).
+
+**Data note:** the raw Novartis clinical-trial PDFs are treated as **non-redistributable**
+and are gitignored. A small, clearly-labeled **synthetic** sample (`data/sample/`) ships so
+the pipeline, tests, and CI run with zero real data. Synthetic numbers are illustrative, never real results.
+
+### Install (CPU-only, no GPU required)
+
+```bash
+uv venv .venv && uv pip install --python .venv -e ".[dev]"   # or: python -m venv .venv && pip install -e ".[dev]"
+```
+
+The transformer baselines (DistilBERT, Mistral/T5, …) are an optional extra — install with
+`pip install -e ".[ml]"` only when you want to run them. Device selection is **CPU-first and
+uses a GPU automatically** when one is present (override with `PLS_DEVICE`).
+
+### Run the pipeline end-to-end on the synthetic sample
+
+```bash
+pls demo                     # build → split (by trial) → evaluate (Lead baseline) → metrics
+```
+
+Or step by step (also works against the real corpus by pointing `--raw-dir`/`PLS_RAW_DIR` at it):
+
+```bash
+pls ingest  --raw-dir data/sample --out data/processed/database.json   # PDFs → records (real corpus)
+pls build   --db data/sample/trials.json --out data/processed/examples.jsonl
+pls split   --examples data/processed/examples.jsonl --out-dir data/processed/splits
+pls evaluate --examples data/processed/splits/test.jsonl --backend lead --out data/processed/results.json
+# transformer backends (need the [ml] extra): --backend distilbert  |  --backend hf:google/flan-t5-base
+```
+
+### Persist to a database (optional)
+
+Trials are stored via SQLAlchemy — **SQLite by default** (no setup), or any backend via
+`PLS_DATABASE_URL` (e.g. Postgres). Schema is managed with Alembic migrations.
+
+```bash
+alembic upgrade head                                   # create/upgrade schema (production path)
+pls db-load --records data/sample/trials.json          # load canonical records (idempotent)
+pls trials                                             # list stored trials
+pls ingest --raw-dir data/sample --to-db               # ingest real PDFs straight into the DB
+```
+
+PDF → Markdown conversion (MarkItDown) is available with the `[pdf]` extra
+(`pip install -e ".[pdf]"`); it preserves more structure than the section parser and feeds
+the future RAG layer.
+
+### Hosted LLM providers (optional, bring your own key)
+
+Anthropic, OpenAI, and Gemini are available as drop-in summarization backends with the
+`[providers]` extra (`pip install -e ".[providers]"`). Keys are read from the environment
+(`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`) — never hardcoded, never logged,
+masked in output. No developer key is ever consumed silently.
+
+```bash
+pls providers                                              # show providers + masked key status
+export ANTHROPIC_API_KEY=sk-...                            # your key
+pls evaluate --examples <split>.jsonl --backend anthropic:claude-sonnet-5-5 --out out.json
+```
+
+### Benchmark models against each other
+
+Evaluate several backends on the *same* examples and get a reproducible comparison
+(versions, seed, and a fingerprint of the exact examples are recorded):
+
+```bash
+pls benchmark --examples <split>.jsonl --backends "lead-1,lead-2,lead-3" --out-dir out/ --to-db
+pls experiments                      # list stored benchmark runs
+```
+
+Writes `benchmark.json` + a Markdown `comparison.md`; `--to-db` persists an experiment.
+
+### Fine-tuning (optional, GPU-gated)
+
+A reproducible seq2seq fine-tune (early stopping, optional LoRA) lives in
+`pls_ct.training`. It needs the `[ml]` extra (`[peft]` for LoRA), runs on CPU but is slow,
+and uses a GPU automatically when present. It is **not** run in CI.
+
+```bash
+pip install -e ".[ml]" ".[peft]"
+pls train --splits-dir data/processed/splits --model google/flan-t5-base --lora --out-dir artifacts/ft
+```
+
+### RAG research assistant
+
+Index the trials, then ask questions and get answers **with citations** back to the source
+trial/section. The default embedder is dependency-free (hashing); install `[rag]`
+(`pip install -e ".[rag]"`) for stronger sentence-transformer retrieval.
+
+```bash
+alembic upgrade head
+pls index --records data/sample/trials.json              # chunk + embed into the vector store
+pls ask --query "What adverse events were reported?" --trial SYN001A2101 --k 3
+pls rag-eval --examples data/processed/examples.jsonl --k 5   # recall@k / precision@k / MRR
+```
+
+The assistant states when the evidence is insufficient rather than guessing, treats
+retrieved text as reference-only data, and (by construction) cannot execute tools.
+
+### Run the API
+
+A FastAPI backend exposes the whole research core over a typed, OpenAPI-documented HTTP API.
+
+```bash
+pip install -e ".[api]"
+alembic upgrade head
+pls db-load --records data/sample/trials.json        # seed some data
+uvicorn pls_ct.app.main:app --reload                 # http://127.0.0.1:8000
+# docs at /docs ; try: curl localhost:8000/api/stats
+```
+
+Endpoints (under `/api`): `health`, `ready`, `stats`, `backends`, `trials` (+ detail,
+delete), `summarize`, `rag/ask`, `experiments`, `uploads` (→ background preprocess job) and
+`jobs/{id}`. Hosted-provider keys may be supplied per-request and are never logged.
+
+### Web frontend
+
+A Vite + React + TypeScript + Tailwind SPA lives in [`frontend/`](frontend/) and talks to
+the API (dev proxy forwards `/api` → `:8000`). First iteration: landing (real stats), live
+summarization demo, and a model-comparison dashboard.
+
+```bash
+cd frontend && npm install && npm run dev     # http://localhost:5173
+```
+
+See [`frontend/README.md`](frontend/README.md) for details.
+
+### Develop
+
+```bash
+ruff check .      # lint (new code only; original thesis files are excluded)
+pytest -q         # test suite (no model downloads, no paid APIs)
+cd frontend && npm run build && npm test   # frontend type-check, bundle, and unit tests
+```
+
+See [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) for milestone status and what's next.
+
 ## 📝 Citation
 
 If you find this work useful, please consider citing:
