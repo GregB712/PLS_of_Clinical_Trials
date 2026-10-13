@@ -55,6 +55,52 @@ Additional techniques applied include:
 
 ---
 
+## 🔁 Reproducible research core
+
+> This section documents an in-progress upgrade that makes the thesis pipeline
+> reproducible. The original thesis code is preserved **verbatim** in `Extra Code/`,
+> `Preprocess Dataset/`, and `model.ipynb`. Planning and findings live in [`docs/`](docs/)
+> — start with [`docs/PROJECT_AUDIT.md`](docs/PROJECT_AUDIT.md).
+
+**Data note:** the raw Novartis clinical-trial PDFs are treated as **non-redistributable**
+and are gitignored. A small, clearly-labeled **synthetic** sample (`data/sample/`) ships so
+the pipeline, tests, and CI run with zero real data. Synthetic numbers are illustrative, never real results.
+
+### Install (CPU-only, no GPU required)
+
+```bash
+uv venv .venv && uv pip install --python .venv -e ".[dev]"   # or: python -m venv .venv && pip install -e ".[dev]"
+```
+
+The transformer baselines (DistilBERT, Mistral/T5, …) are an optional extra — install with
+`pip install -e ".[ml]"` only when you want to run them. Device selection is **CPU-first and
+uses a GPU automatically** when one is present (override with `PLS_DEVICE`).
+
+### Run the pipeline end-to-end on the synthetic sample
+
+```bash
+pls demo                     # build → split (by trial) → evaluate (Lead baseline) → metrics
+```
+
+Or step by step (also works against the real corpus by pointing `--raw-dir`/`PLS_RAW_DIR` at it):
+
+```bash
+pls ingest  --raw-dir data/sample --out data/processed/database.json   # PDFs → records (real corpus)
+pls build   --db data/sample/trials.json --out data/processed/examples.jsonl
+pls split   --examples data/processed/examples.jsonl --out-dir data/processed/splits
+pls evaluate --examples data/processed/splits/test.jsonl --backend lead --out data/processed/results.json
+# transformer backends (need the [ml] extra): --backend distilbert  |  --backend hf:google/flan-t5-base
+```
+
+### Develop
+
+```bash
+ruff check .      # lint (new code only; original thesis files are excluded)
+pytest -q         # test suite (no model downloads, no paid APIs)
+```
+
+See [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) for milestone status and what's next.
+
 ## 📝 Citation
 
 If you find this work useful, please consider citing:

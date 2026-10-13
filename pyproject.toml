@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pls-ct"
+version = "0.1.0"
+description = "Plain Language Summarization of Clinical Trials — reproducible research core"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "See LICENSE / data provenance in docs" }
+authors = [{ name = "Grigorios Barmpas" }]
+dependencies = [
+    "pdfminer.six>=20231228",
+    "rouge-score>=0.1.2",
+    "nltk>=3.8",
+    "pyspellchecker>=0.8",
+]
+
+[project.optional-dependencies]
+# Heavy ML stack — only needed to actually train/run the transformer baselines.
+# Kept optional so `pip install -e .` and CI stay light and GPU-free.
+ml = [
+    "torch>=2.1",
+    "transformers>=4.40",
+    "datasets>=2.18",
+]
+# Local generative LLM (GGUF via llama.cpp). Separate because it compiles.
+llm = [
+    "llama-cpp-python>=0.2.70",
+    "langchain-community>=0.2",
+]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5",
+]
+
+[project.scripts]
+pls = "pls_ct.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+# Original thesis code is preserved verbatim as the research record; do not lint/reformat it.
+extend-exclude = ["Extra Code", "Preprocess Dataset", "notebooks", "model.ipynb", "*.ipynb"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# Verbatim data table of question phrasings; long string pairs are unavoidable.
+"src/pls_ct/ingestion/sections.py" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
