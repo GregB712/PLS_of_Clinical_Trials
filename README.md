@@ -160,6 +160,17 @@ pls rag-eval --examples data/processed/examples.jsonl --k 5   # recall@k / preci
 The assistant states when the evidence is insufficient rather than guessing, treats
 retrieved text as reference-only data, and (by construction) cannot execute tools.
 
+### Run the whole stack (Docker)
+
+```bash
+docker compose up --build       # web UI: http://localhost:8080 · API docs: http://localhost:8000/docs
+```
+
+Runs the API (SQLite in a volume, seeded with the synthetic sample) and the built frontend
+behind nginx. See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) and
+[`docs/SECURITY.md`](docs/SECURITY.md). Without Docker, `make install && make seed` then
+`make api` + `make web`.
+
 ### Run the API
 
 A FastAPI backend exposes the whole research core over a typed, OpenAPI-documented HTTP API.

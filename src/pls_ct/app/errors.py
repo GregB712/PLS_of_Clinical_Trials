@@ -37,3 +37,8 @@ def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(ValueError)
     async def _value(_: Request, exc: ValueError):
         return _json(400, "bad_request", str(exc))
+
+    @app.exception_handler(Exception)
+    async def _unhandled(_: Request, exc: Exception):
+        # Last-resort guard: never leak internals / stack traces to the client.
+        return _json(500, "internal_error", "an unexpected error occurred")
