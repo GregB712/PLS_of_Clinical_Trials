@@ -67,6 +67,27 @@ class Section(Base):
     document: Mapped[Document] = relationship(back_populates="sections")
 
 
+class Chunk(Base):
+    """A retrievable passage + its embedding (research-scale vector store).
+
+    The embedding is stored as a JSON array; for scale this migrates to pgvector.
+    """
+
+    __tablename__ = "chunks"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    chunk_id: Mapped[str] = mapped_column(String(256), unique=True, index=True)
+    trial_name: Mapped[str] = mapped_column(String(64), index=True)
+    section: Mapped[str] = mapped_column(String(128))
+    text: Mapped[str] = mapped_column(Text)
+    start: Mapped[int] = mapped_column(Integer, default=0)
+    end: Mapped[int] = mapped_column(Integer, default=0)
+    idx: Mapped[int] = mapped_column(Integer, default=0)
+    embedder: Mapped[str] = mapped_column(String(64), index=True)
+    dim: Mapped[int] = mapped_column(Integer)
+    embedding: Mapped[list[float]] = mapped_column(JSON)
+
+
 class Experiment(Base):
     """One benchmark run: a set of backends evaluated on the same examples."""
 

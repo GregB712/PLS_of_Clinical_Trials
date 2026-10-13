@@ -130,8 +130,36 @@ verified on a fresh DB).
   backends; data-prep + leakage tested; trainer's missing-`[ml]` guard tested. The actual
   train loop is **not** run in CI (no GPU/downloads) — documented, run deliberately. ✔
 
+## Milestone 6 — RAG research assistant ✅ (done, verified)
+
+Status: implemented and verified (`ruff` clean, `pytest` 73 passing; `pls index/ask/rag-eval`
+run end-to-end on the synthetic sample, CPU-only, no ML deps).
+
+- **Chunking** (`rag/chunk.py`): within-section, sentence-boundary windows with overlap,
+  preserving `trial_name`, `section`, and char offsets for precise citations.
+- **Embeddings** (`rag/embeddings.py`): dependency-free `HashingEmbedder` default (real
+  signed-hashing bag-of-words, L2-normalized) so RAG runs anywhere; `SentenceTransformer`
+  behind the optional `[rag]` extra for stronger retrieval.
+- **Store/retrieval** (`rag/store.py`): in-memory cosine top-k with trial scoping;
+  chunks + vectors persist in a `chunks` table (Alembic migration). pgvector is the
+  documented scale path.
+- **Assistant** (`rag/assistant.py`): reuses any `SummarizerBackend`; returns citations
+  (trial/section/offsets) and an explicit **insufficient-evidence** response below a
+  tunable threshold. Retrieved text is labeled reference data with an injection guard;
+  backends are text-only (no tools), so retrieved content can't trigger actions.
+- **Retrieval evaluation** (`rag/eval.py`): recall@k / precision@k / MRR, with relevance
+  derived from the dataset's own question→section mapping — measured separately from
+  answer quality.
+- **CLI:** `pls index`, `pls ask`, `pls rag-eval`.
+- **Verify:** embedder determinism/similarity, chunking + offsets, store top-k + filter,
+  assistant citations + insufficient paths + injection guard, and the retrieval metrics —
+  all tested CPU-only. ✔
+
+Note: the default hashing embedder is deliberately weak (no semantics); retrieval quality
+on real data improves markedly with the `[rag]` sentence-transformer embedder. Metrics are
+reported honestly, never inflated.
+
 ## Later milestones (deferred — not started)
-- **M6** RAG assistant (chunking, retrieval, citations, retrieval eval).
 - **M7** Web app (landing, dataset explorer, live demo, comparison dashboard, RAG page).
 - **M8** Integration, security, Docker, CI, docs.
 - **M9** Portfolio polish.

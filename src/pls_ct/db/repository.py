@@ -12,7 +12,7 @@ import json
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from pls_ct.db.models import Document, Experiment, ExperimentResult, Section, Trial
+from pls_ct.db.models import Chunk, Document, Experiment, ExperimentResult, Section, Trial
 
 
 def content_hash(sections: dict[str, str]) -> str:
@@ -127,3 +127,21 @@ def save_experiment(session: Session, benchmark: dict) -> Experiment:
 
 def list_experiments(session: Session) -> list[Experiment]:
     return list(session.scalars(select(Experiment).order_by(Experiment.created_at.desc())))
+
+
+def replace_chunks(session: Session, rows: list[dict]) -> int:
+    """Full re-index: delete all stored chunks, then insert the given rows. Idempotent."""
+    session.query(Chunk).delete()
+    session.flush()
+    for row in rows:
+        session.add(Chunk(**row))
+    session.flush()
+    return len(rows)
+
+
+def load_chunks(session: Session) -> list[Chunk]:
+    return list(session.scalars(select(Chunk).order_by(Chunk.id)))
+
+
+def count_chunks(session: Session) -> int:
+    return session.scalar(select(func.count()).select_from(Chunk)) or 0

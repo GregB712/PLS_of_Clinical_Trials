@@ -41,6 +41,10 @@ ml = [
 peft = [
     "peft>=0.11",
 ]
+# Stronger dense embeddings for RAG (default embedder is dependency-free).
+rag = [
+    "sentence-transformers>=3.0",
+]
 # Local generative LLM (GGUF via llama.cpp). Separate because it compiles.
 llm = [
     "llama-cpp-python>=0.2.70",

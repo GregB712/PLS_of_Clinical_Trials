@@ -35,3 +35,12 @@ jobs:
           pls build --db data/sample/trials.json --out /tmp/ex.jsonl
           pls split --examples /tmp/ex.jsonl --out-dir /tmp/splits
           pls benchmark --examples /tmp/splits/test.jsonl --backends "lead-1,lead-2" --out-dir /tmp/bench
+
+      - name: Smoke-test the RAG pipeline (DB + retrieval eval)
+        env:
+          PLS_DATABASE_URL: sqlite:////tmp/ci_pls.db
+        run: |
+          alembic upgrade head
+          pls index --records data/sample/trials.json
+          pls ask --query "What adverse events were reported?" --k 3
+          pls rag-eval --examples /tmp/ex.jsonl --k 5

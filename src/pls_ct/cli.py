@@ -115,6 +115,77 @@ def cmd_train(args) -> int:
     return 0
 
 
+def cmd_index(args) -> int:
+    from pls_ct.dataset.build import load_records
+    from pls_ct.db.engine import create_all, get_engine, session_scope
+    from pls_ct.db.repository import replace_chunks
+    from pls_ct.rag.chunk import chunk_records
+    from pls_ct.rag.embeddings import make_embedder
+    from pls_ct.rag.index import build_rows
+
+    records = load_records(args.records)
+    chunks = chunk_records(records, which=args.which)
+    embedder = make_embedder(args.embedder)
+    rows = build_rows(chunks, embedder)
+
+    engine = get_engine(args.db_url)
+    create_all(engine)
+    with session_scope(engine) as session:
+        n = replace_chunks(session, rows)
+    print(f"indexed {n} chunks from {len(records)} records using embedder={embedder.name}")
+    return 0
+
+
+def _load_store_from_db(db_url, embedder_spec):
+    from pls_ct.db.engine import get_engine, session_scope
+    from pls_ct.db.repository import load_chunks
+    from pls_ct.rag.embeddings import make_embedder
+    from pls_ct.rag.index import load_store
+
+    engine = get_engine(db_url)
+    with session_scope(engine) as session:
+        db_chunks = load_chunks(session)
+    if not db_chunks:
+        raise SystemExit("no chunks indexed; run `pls index` first")
+    # Reconstruct the exact embedder used at index time (keeps query/doc vectors aligned).
+    spec = db_chunks[0].embedder if embedder_spec == "auto" else embedder_spec
+    return db_chunks, load_store(db_chunks, make_embedder(spec))
+
+
+def cmd_ask(args) -> int:
+    from pls_ct.rag.assistant import answer_query
+
+    _, store = _load_store_from_db(args.db_url, args.embedder)
+    backend = _make_backend(args.backend, lead_k=args.lead_k)
+    ans = answer_query(store, backend, args.query, k=args.k, trial_name=args.trial)
+
+    print(f"ANSWER (sufficient={ans.sufficient}):\n{ans.answer}")
+    if ans.citations:
+        print("\nCITATIONS:")
+        for i, c in enumerate(ans.citations, 1):
+            print(
+                f"  [{i}] {c.trial_name} — {c.section} "
+                f"(score {c.score:.3f}, chars {c.start}-{c.end})"
+            )
+    return 0
+
+
+def cmd_rag_eval(args) -> int:
+    from pls_ct.rag.chunk import Chunk
+    from pls_ct.rag.eval import evaluate_retrieval
+
+    examples = _read_jsonl(args.examples)
+    db_chunks, store = _load_store_from_db(args.db_url, args.embedder)
+    chunks = [
+        Chunk(r.trial_name, r.section, r.text, r.start, r.end, r.idx) for r in db_chunks
+    ]
+    metrics = evaluate_retrieval(store, chunks, examples, k=args.k)
+    print(f"retrieval eval (k={metrics['k']}, n_queries={metrics['n_queries']}):")
+    for name in ("recall@k", "precision@k", "mrr"):
+        print(f"  {name}: {metrics[name]:.3f}")
+    return 0
+
+
 def cmd_providers(args) -> int:
     from pls_ct.providers import DEFAULT_MODELS, PROVIDERS, make_provider
 
@@ -289,6 +360,30 @@ def build_parser() -> argparse.ArgumentParser:
     p_train.add_argument("--lora", action="store_true", help="use LoRA (needs [peft])")
     p_train.add_argument("--out-dir", default="artifacts/finetuned")
     p_train.set_defaults(func=cmd_train)
+
+    p_index = sub.add_parser("index", help="chunk + embed records into the vector store")
+    p_index.add_argument("--records", required=True, help="JSON list of trial records")
+    p_index.add_argument("--which", default="report_sections", help="which sections to index")
+    p_index.add_argument("--embedder", default="hashing", help="hashing[-DIM] | st:<model_id>")
+    p_index.add_argument("--db-url", default=None)
+    p_index.set_defaults(func=cmd_index)
+
+    p_ask = sub.add_parser("ask", help="RAG query over the indexed trials (with citations)")
+    p_ask.add_argument("--query", required=True)
+    p_ask.add_argument("--trial", default=None, help="scope retrieval to one protocol id")
+    p_ask.add_argument("--k", type=int, default=5)
+    p_ask.add_argument("--backend", default="lead", help="answer backend spec")
+    p_ask.add_argument("--lead-k", type=int, default=2)
+    p_ask.add_argument("--embedder", default="auto", help="auto = embedder used at index time")
+    p_ask.add_argument("--db-url", default=None)
+    p_ask.set_defaults(func=cmd_ask)
+
+    p_rageval = sub.add_parser("rag-eval", help="retrieval metrics (recall@k/precision@k/mrr)")
+    p_rageval.add_argument("--examples", required=True)
+    p_rageval.add_argument("--k", type=int, default=5)
+    p_rageval.add_argument("--embedder", default="auto")
+    p_rageval.add_argument("--db-url", default=None)
+    p_rageval.set_defaults(func=cmd_rag_eval)
 
     p_build = sub.add_parser("build", help="trial records -> QA examples (jsonl)")
     p_build.add_argument("--db", required=True)

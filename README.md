@@ -144,6 +144,22 @@ pip install -e ".[ml]" ".[peft]"
 pls train --splits-dir data/processed/splits --model google/flan-t5-base --lora --out-dir artifacts/ft
 ```
 
+### RAG research assistant
+
+Index the trials, then ask questions and get answers **with citations** back to the source
+trial/section. The default embedder is dependency-free (hashing); install `[rag]`
+(`pip install -e ".[rag]"`) for stronger sentence-transformer retrieval.
+
+```bash
+alembic upgrade head
+pls index --records data/sample/trials.json              # chunk + embed into the vector store
+pls ask --query "What adverse events were reported?" --trial SYN001A2101 --k 3
+pls rag-eval --examples data/processed/examples.jsonl --k 5   # recall@k / precision@k / MRR
+```
+
+The assistant states when the evidence is insufficient rather than guessing, treats
+retrieved text as reference-only data, and (by construction) cannot execute tools.
+
 ### Develop
 
 ```bash
