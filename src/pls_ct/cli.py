@@ -51,6 +51,70 @@ def _make_backend(spec: str, *, lead_k: int = 2):
     )
 
 
+def cmd_benchmark(args) -> int:
+    from pls_ct.evaluation.benchmark import comparison_markdown, run_benchmark
+    from pls_ct.evaluation.harness import write_results
+
+    examples = _read_jsonl(args.examples)
+    specs = [s.strip() for s in args.backends.split(",") if s.strip()]
+    backends = [_make_backend(s, lead_k=args.lead_k) for s in specs]
+    bench = run_benchmark(backends, examples)
+
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    write_results(bench, out_dir / "benchmark.json")
+    table = comparison_markdown(bench)
+    (out_dir / "comparison.md").write_text(table + "\n", encoding="utf-8")
+    print(table)
+
+    if args.to_db:
+        from pls_ct.db.engine import create_all, get_engine, session_scope
+        from pls_ct.db.repository import save_experiment
+
+        engine = get_engine(args.db_url)
+        create_all(engine)
+        with session_scope(engine) as session:
+            experiment = save_experiment(session, bench)
+            print(f"saved experiment id={experiment.id}")
+    print(f"wrote {out_dir / 'benchmark.json'} and {out_dir / 'comparison.md'}")
+    return 0
+
+
+def cmd_experiments(args) -> int:
+    from pls_ct.db.engine import get_engine, session_scope
+    from pls_ct.db.repository import list_experiments
+
+    engine = get_engine(args.db_url)
+    with session_scope(engine) as session:
+        experiments = list_experiments(session)
+        print(f"{len(experiments)} experiment(s):")
+        for exp in experiments:
+            backends = ",".join(r.backend for r in exp.results)
+            print(
+                f"  #{exp.id} {exp.created_at:%Y-%m-%d %H:%M} fp={exp.split_fingerprint} "
+                f"n={exp.n_examples} backends=[{backends}]"
+            )
+    return 0
+
+
+def cmd_train(args) -> int:
+    from pls_ct.training.finetune import FinetuneConfig, finetune_seq2seq
+
+    splits_dir = Path(args.splits_dir)
+    splits = {
+        name: _read_jsonl(splits_dir / f"{name}.jsonl")
+        for name in ("train", "val", "test")
+        if (splits_dir / f"{name}.jsonl").exists()
+    }
+    if "train" not in splits:
+        raise SystemExit(f"no train.jsonl in {splits_dir} (run `pls split` first)")
+    cfg = FinetuneConfig(base_model=args.model, epochs=args.epochs, use_lora=args.lora)
+    metadata = finetune_seq2seq(splits, output_dir=args.out_dir, cfg=cfg)
+    print(f"fine-tuning done -> {args.out_dir}")
+    print(json.dumps(metadata, indent=2))
+    return 0
+
+
 def cmd_providers(args) -> int:
     from pls_ct.providers import DEFAULT_MODELS, PROVIDERS, make_provider
 
@@ -204,6 +268,27 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_providers = sub.add_parser("providers", help="list hosted providers and key status")
     p_providers.set_defaults(func=cmd_providers)
+
+    p_bench = sub.add_parser("benchmark", help="compare several backends on one example set")
+    p_bench.add_argument("--examples", required=True)
+    p_bench.add_argument("--backends", default="lead,lead-3", help="comma-separated backend specs")
+    p_bench.add_argument("--lead-k", type=int, default=2)
+    p_bench.add_argument("--out-dir", default="data/processed/benchmark")
+    p_bench.add_argument("--to-db", action="store_true", help="persist the experiment to the DB")
+    p_bench.add_argument("--db-url", default=None)
+    p_bench.set_defaults(func=cmd_benchmark)
+
+    p_exps = sub.add_parser("experiments", help="list benchmark experiments stored in the DB")
+    p_exps.add_argument("--db-url", default=None)
+    p_exps.set_defaults(func=cmd_experiments)
+
+    p_train = sub.add_parser("train", help="fine-tune a seq2seq model (needs [ml]; GPU optional)")
+    p_train.add_argument("--splits-dir", required=True, help="dir with train/val/test .jsonl")
+    p_train.add_argument("--model", default="google/flan-t5-base")
+    p_train.add_argument("--epochs", type=int, default=3)
+    p_train.add_argument("--lora", action="store_true", help="use LoRA (needs [peft])")
+    p_train.add_argument("--out-dir", default="artifacts/finetuned")
+    p_train.set_defaults(func=cmd_train)
 
     p_build = sub.add_parser("build", help="trial records -> QA examples (jsonl)")
     p_build.add_argument("--db", required=True)

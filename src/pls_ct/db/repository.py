@@ -12,7 +12,7 @@ import json
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from pls_ct.db.models import Document, Section, Trial
+from pls_ct.db.models import Document, Experiment, ExperimentResult, Section, Trial
 
 
 def content_hash(sections: dict[str, str]) -> str:
@@ -100,3 +100,30 @@ def list_trials(session: Session) -> list[Trial]:
 
 def get_trial(session: Session, protocol_id: str) -> Trial | None:
     return session.scalar(select(Trial).where(Trial.protocol_id == protocol_id))
+
+
+def save_experiment(session: Session, benchmark: dict) -> Experiment:
+    """Persist a benchmark dict (from run_benchmark) as an Experiment + its results."""
+    experiment = Experiment(
+        split_fingerprint=benchmark["split_fingerprint"],
+        n_examples=benchmark["n_examples"],
+        seed=benchmark.get("generation_config", {}).get("seed"),
+        generation_config=benchmark.get("generation_config", {}),
+        versions=benchmark.get("versions", {}),
+    )
+    for res in benchmark.get("results", []):
+        experiment.results.append(
+            ExperimentResult(
+                backend=res["backend"],
+                n_scored=res.get("n_scored", 0),
+                n_errors=res.get("n_errors", 0),
+                aggregate=res.get("aggregate", {}),
+            )
+        )
+    session.add(experiment)
+    session.flush()
+    return experiment
+
+
+def list_experiments(session: Session) -> list[Experiment]:
+    return list(session.scalars(select(Experiment).order_by(Experiment.created_at.desc())))

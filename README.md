@@ -121,6 +121,29 @@ export ANTHROPIC_API_KEY=sk-...                            # your key
 pls evaluate --examples <split>.jsonl --backend anthropic:claude-sonnet-5-5 --out out.json
 ```
 
+### Benchmark models against each other
+
+Evaluate several backends on the *same* examples and get a reproducible comparison
+(versions, seed, and a fingerprint of the exact examples are recorded):
+
+```bash
+pls benchmark --examples <split>.jsonl --backends "lead-1,lead-2,lead-3" --out-dir out/ --to-db
+pls experiments                      # list stored benchmark runs
+```
+
+Writes `benchmark.json` + a Markdown `comparison.md`; `--to-db` persists an experiment.
+
+### Fine-tuning (optional, GPU-gated)
+
+A reproducible seq2seq fine-tune (early stopping, optional LoRA) lives in
+`pls_ct.training`. It needs the `[ml]` extra (`[peft]` for LoRA), runs on CPU but is slow,
+and uses a GPU automatically when present. It is **not** run in CI.
+
+```bash
+pip install -e ".[ml]" ".[peft]"
+pls train --splits-dir data/processed/splits --model google/flan-t5-base --lora --out-dir artifacts/ft
+```
+
 ### Develop
 
 ```bash

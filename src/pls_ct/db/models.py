@@ -8,8 +8,9 @@ the research core; extends toward the full schema in docs/DATASET_AND_PIPELINE.m
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import Any
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -64,3 +65,38 @@ class Section(Base):
     text: Mapped[str] = mapped_column(Text, default="")
 
     document: Mapped[Document] = relationship(back_populates="sections")
+
+
+class Experiment(Base):
+    """One benchmark run: a set of backends evaluated on the same examples."""
+
+    __tablename__ = "experiments"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    split_fingerprint: Mapped[str] = mapped_column(String(32), index=True)
+    n_examples: Mapped[int] = mapped_column(Integer)
+    seed: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    generation_config: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    versions: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+
+    results: Mapped[list[ExperimentResult]] = relationship(
+        back_populates="experiment", cascade="all, delete-orphan"
+    )
+
+
+class ExperimentResult(Base):
+    """One backend's aggregate metrics within an experiment."""
+
+    __tablename__ = "experiment_results"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    experiment_id: Mapped[int] = mapped_column(
+        ForeignKey("experiments.id", ondelete="CASCADE"), index=True
+    )
+    backend: Mapped[str] = mapped_column(String(128))
+    n_scored: Mapped[int] = mapped_column(Integer, default=0)
+    n_errors: Mapped[int] = mapped_column(Integer, default=0)
+    aggregate: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+
+    experiment: Mapped[Experiment] = relationship(back_populates="results")

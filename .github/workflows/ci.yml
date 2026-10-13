@@ -29,3 +29,9 @@ jobs:
 
       - name: Smoke-test the end-to-end pipeline on synthetic data
         run: pls demo --out /tmp/demo_results.json
+
+      - name: Smoke-test multi-backend benchmarking
+        run: |
+          pls build --db data/sample/trials.json --out /tmp/ex.jsonl
+          pls split --examples /tmp/ex.jsonl --out-dir /tmp/splits
+          pls benchmark --examples /tmp/splits/test.jsonl --backends "lead-1,lead-2" --out-dir /tmp/bench
