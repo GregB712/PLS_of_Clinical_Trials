@@ -86,8 +86,30 @@ Deferred within M3: **pgvector** (added with RAG, M6, when embeddings exist); OC
 fallback for scanned PDFs (flagged, not yet implemented); background-job persistence
 (added with the API, M7). Reason: no consumer for them yet — avoid speculative infra.
 
+## Milestone 4 — Unified summarization engine + hosted providers ✅ (done, verified)
+
+Status: implemented and verified (`ruff` clean, `pytest` 50 passing). SDK calls are
+covered by **fully mocked** tests — no SDKs installed, no keys, no network, no cost.
+
+- **Unified interface** (from M2): `SummarizerBackend` + `SummaryResult` carrying text,
+  model, generation config, input/output tokens, latency, estimated cost, warnings,
+  run id, and provenance. Local backends (Lead, DistilBERT, HF generative) already use it.
+- **Hosted providers** (`providers/`): Anthropic, OpenAI, Gemini as drop-in backends.
+  SDK APIs verified via Context7 (anthropic messages, openai chat completions,
+  google-genai generate_content). Lazy SDK imports behind the optional `[providers]` extra.
+- **Key safety:** keys from env or passed explicitly (user-supplied), never hardcoded,
+  never logged, masked in output; `validate()` checks config without a network call.
+- **Error handling:** normalized taxonomy (ProviderConfigError / Auth / RateLimit /
+  Response) mapped from SDK errors by status code / class name.
+- **Cost:** pricing registry + `estimate_cost`; ships **empty** (no fabricated prices) →
+  "cost unknown" until populated from official pricing pages.
+- **Extensibility:** add a provider = one subclass + one registry entry.
+- **CLI:** `pls providers` (masked key status) and `--backend <provider>[:<model>]`.
+- **Verify:** mocked success paths for all three providers; key masking; missing-key
+  config error (no network); error classification; graceful per-example failure in the
+  harness when a key is absent. ✔
+
 ## Later milestones (deferred — not started)
-- **M4** Unified summarization engine + hosted-provider abstraction (user-supplied keys).
 - **M5** Benchmarking/experiment tracking + optional LoRA/QLoRA fine-tuning.
 - **M6** RAG assistant (chunking, retrieval, citations, retrieval eval).
 - **M7** Web app (landing, dataset explorer, live demo, comparison dashboard, RAG page).

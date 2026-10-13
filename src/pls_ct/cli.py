@@ -35,7 +35,34 @@ def _make_backend(spec: str, *, lead_k: int = 2):
         from pls_ct.models.generative import HFGenerativeBackend
 
         return HFGenerativeBackend(spec[3:])
-    raise SystemExit(f"unknown backend spec: {spec!r} (use lead[-K] | distilbert | hf:<model_id>)")
+
+    from pls_ct.providers import PROVIDERS, make_provider
+
+    if spec in PROVIDERS:
+        return make_provider(spec)
+    if ":" in spec:
+        prefix, model = spec.split(":", 1)
+        if prefix in PROVIDERS:
+            return make_provider(prefix, model)
+
+    raise SystemExit(
+        f"unknown backend spec: {spec!r} "
+        "(use lead[-K] | distilbert | hf:<model_id> | <provider>[:<model>])"
+    )
+
+
+def cmd_providers(args) -> int:
+    from pls_ct.providers import DEFAULT_MODELS, PROVIDERS, make_provider
+
+    print("hosted providers (keys are read from the environment, never logged):")
+    for name in sorted(PROVIDERS):
+        provider = make_provider(name)
+        status = "configured" if provider.has_key() else "NO KEY"
+        print(
+            f"  {name:10} env={provider.api_key_env:18} "
+            f"default={DEFAULT_MODELS[name]:20} key={provider.masked_key()} [{status}]"
+        )
+    return 0
 
 
 def cmd_ingest(args) -> int:
@@ -175,6 +202,9 @@ def build_parser() -> argparse.ArgumentParser:
     p_trials.add_argument("--db-url", default=None)
     p_trials.set_defaults(func=cmd_trials)
 
+    p_providers = sub.add_parser("providers", help="list hosted providers and key status")
+    p_providers.set_defaults(func=cmd_providers)
+
     p_build = sub.add_parser("build", help="trial records -> QA examples (jsonl)")
     p_build.add_argument("--db", required=True)
     p_build.add_argument("--out", default="data/processed/examples.jsonl")
@@ -188,7 +218,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_eval = sub.add_parser("evaluate", help="run a backend over examples -> results JSON")
     p_eval.add_argument("--examples", required=True)
-    p_eval.add_argument("--backend", default="lead", help="lead[-K] | distilbert | hf:<model_id>")
+    p_eval.add_argument(
+        "--backend",
+        default="lead",
+        help="lead[-K] | distilbert | hf:<model_id> | <provider>[:<model>]",
+    )
     p_eval.add_argument("--lead-k", type=int, default=2)
     p_eval.add_argument("--out", default="data/processed/results.json")
     p_eval.set_defaults(func=cmd_evaluate)

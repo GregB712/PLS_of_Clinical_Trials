@@ -24,6 +24,12 @@ dependencies = [
 pdf = [
     "markitdown[pdf]>=0.1.6",
 ]
+# Hosted-LLM provider SDKs (used only with user-supplied API keys).
+providers = [
+    "anthropic>=0.39",
+    "openai>=1.40",
+    "google-genai>=1.0",
+]
 # Heavy ML stack — only needed to actually train/run the transformer baselines.
 # Kept optional so `pip install -e .` and CI stay light and GPU-free.
 ml = [

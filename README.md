@@ -108,6 +108,19 @@ PDF → Markdown conversion (MarkItDown) is available with the `[pdf]` extra
 (`pip install -e ".[pdf]"`); it preserves more structure than the section parser and feeds
 the future RAG layer.
 
+### Hosted LLM providers (optional, bring your own key)
+
+Anthropic, OpenAI, and Gemini are available as drop-in summarization backends with the
+`[providers]` extra (`pip install -e ".[providers]"`). Keys are read from the environment
+(`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`) — never hardcoded, never logged,
+masked in output. No developer key is ever consumed silently.
+
+```bash
+pls providers                                              # show providers + masked key status
+export ANTHROPIC_API_KEY=sk-...                            # your key
+pls evaluate --examples <split>.jsonl --backend anthropic:claude-sonnet-5-5 --out out.json
+```
+
 ### Develop
 
 ```bash
