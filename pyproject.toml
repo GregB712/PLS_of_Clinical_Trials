@@ -15,9 +15,15 @@ dependencies = [
     "rouge-score>=0.1.2",
     "nltk>=3.8",
     "pyspellchecker>=0.8",
+    "SQLAlchemy>=2.0",
+    "alembic>=1.13",
 ]
 
 [project.optional-dependencies]
+# MarkItDown PDF -> Markdown conversion (pulls pdfplumber etc.).
+pdf = [
+    "markitdown[pdf]>=0.1.6",
+]
 # Heavy ML stack — only needed to actually train/run the transformer baselines.
 # Kept optional so `pip install -e .` and CI stay light and GPU-free.
 ml = [
@@ -46,7 +52,15 @@ line-length = 100
 target-version = "py310"
 src = ["src", "tests"]
 # Original thesis code is preserved verbatim as the research record; do not lint/reformat it.
-extend-exclude = ["Extra Code", "Preprocess Dataset", "notebooks", "model.ipynb", "*.ipynb"]
+# `migrations/versions` holds Alembic-generated files; leave them as generated.
+extend-exclude = [
+    "Extra Code",
+    "Preprocess Dataset",
+    "notebooks",
+    "model.ipynb",
+    "*.ipynb",
+    "migrations/versions",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

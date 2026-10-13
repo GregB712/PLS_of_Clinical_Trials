@@ -23,6 +23,11 @@ trained_model*/
 checkpoints/
 artifacts/
 
+# Local databases (SQLite). Alembic migrations under migrations/versions/ ARE committed.
+*.db
+*.sqlite
+*.sqlite3
+
 # Secrets
 .env
 .env.*

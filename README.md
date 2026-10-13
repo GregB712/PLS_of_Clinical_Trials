@@ -92,6 +92,22 @@ pls evaluate --examples data/processed/splits/test.jsonl --backend lead --out da
 # transformer backends (need the [ml] extra): --backend distilbert  |  --backend hf:google/flan-t5-base
 ```
 
+### Persist to a database (optional)
+
+Trials are stored via SQLAlchemy — **SQLite by default** (no setup), or any backend via
+`PLS_DATABASE_URL` (e.g. Postgres). Schema is managed with Alembic migrations.
+
+```bash
+alembic upgrade head                                   # create/upgrade schema (production path)
+pls db-load --records data/sample/trials.json          # load canonical records (idempotent)
+pls trials                                             # list stored trials
+pls ingest --raw-dir data/sample --to-db               # ingest real PDFs straight into the DB
+```
+
+PDF → Markdown conversion (MarkItDown) is available with the `[pdf]` extra
+(`pip install -e ".[pdf]"`); it preserves more structure than the section parser and feeds
+the future RAG layer.
+
 ### Develop
 
 ```bash

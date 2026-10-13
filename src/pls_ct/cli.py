@@ -48,6 +48,41 @@ def cmd_ingest(args) -> int:
         with open(args.out, "w", encoding="utf-8") as fh:
             json.dump(records, fh, indent=2, ensure_ascii=False)
         print(f"wrote {len(records)} records -> {args.out}")
+        if args.to_db:
+            _load_records_to_db(records, args.db_url)
+    return 0
+
+
+def _load_records_to_db(records: list[dict], db_url: str | None) -> None:
+    from pls_ct.db.engine import create_all, get_engine, session_scope
+    from pls_ct.db.repository import load_records
+
+    engine = get_engine(db_url)
+    create_all(engine)  # dev convenience; production uses `alembic upgrade head`
+    with session_scope(engine) as session:
+        counts = load_records(session, records)
+    print(f"db load: {counts}")
+
+
+def cmd_db_load(args) -> int:
+    from pls_ct.dataset.build import load_records as load_json
+
+    records = load_json(args.records)
+    _load_records_to_db(records, args.db_url)
+    return 0
+
+
+def cmd_trials(args) -> int:
+    from pls_ct.db.engine import get_engine, session_scope
+    from pls_ct.db.repository import list_trials
+
+    engine = get_engine(args.db_url)
+    with session_scope(engine) as session:
+        trials = list_trials(session)
+        print(f"{len(trials)} trial(s):")
+        for trial in trials:
+            kinds = ",".join(sorted(d.kind for d in trial.documents))
+            print(f"  {trial.protocol_id}  source={trial.source}  documents=[{kinds}]")
     return 0
 
 
@@ -127,7 +162,18 @@ def build_parser() -> argparse.ArgumentParser:
     p_ingest.add_argument("--raw-dir", required=True)
     p_ingest.add_argument("--out", default="data/processed/database.json")
     p_ingest.add_argument("--dry-run", action="store_true")
+    p_ingest.add_argument("--to-db", action="store_true", help="also persist records to the DB")
+    p_ingest.add_argument("--db-url", default=None, help="SQLAlchemy URL (default: local sqlite)")
     p_ingest.set_defaults(func=cmd_ingest)
+
+    p_db_load = sub.add_parser("db-load", help="load canonical records JSON into the DB")
+    p_db_load.add_argument("--records", required=True, help="JSON list of trial records")
+    p_db_load.add_argument("--db-url", default=None)
+    p_db_load.set_defaults(func=cmd_db_load)
+
+    p_trials = sub.add_parser("trials", help="list trials stored in the DB")
+    p_trials.add_argument("--db-url", default=None)
+    p_trials.set_defaults(func=cmd_trials)
 
     p_build = sub.add_parser("build", help="trial records -> QA examples (jsonl)")
     p_build.add_argument("--db", required=True)
