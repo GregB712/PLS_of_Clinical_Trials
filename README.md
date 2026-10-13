@@ -176,11 +176,24 @@ Endpoints (under `/api`): `health`, `ready`, `stats`, `backends`, `trials` (+ de
 delete), `summarize`, `rag/ask`, `experiments`, `uploads` (→ background preprocess job) and
 `jobs/{id}`. Hosted-provider keys may be supplied per-request and are never logged.
 
+### Web frontend
+
+A Vite + React + TypeScript + Tailwind SPA lives in [`frontend/`](frontend/) and talks to
+the API (dev proxy forwards `/api` → `:8000`). First iteration: landing (real stats), live
+summarization demo, and a model-comparison dashboard.
+
+```bash
+cd frontend && npm install && npm run dev     # http://localhost:5173
+```
+
+See [`frontend/README.md`](frontend/README.md) for details.
+
 ### Develop
 
 ```bash
 ruff check .      # lint (new code only; original thesis files are excluded)
 pytest -q         # test suite (no model downloads, no paid APIs)
+cd frontend && npm run build && npm test   # frontend type-check, bundle, and unit tests
 ```
 
 See [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) for milestone status and what's next.

@@ -44,3 +44,27 @@ jobs:
           pls index --records data/sample/trials.json
           pls ask --query "What adverse events were reported?" --k 3
           pls rag-eval --examples /tmp/ex.jsonl --k 5
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Type-check + build
+        run: npm run build
+
+      - name: Test
+        run: npm test

@@ -179,11 +179,23 @@ backend first, then frontend.
   pagination/search/404, summarize (trial/text/validation/provider-no-key→clean 400),
   rag, experiments, and the upload→job lifecycle (stubbed extractor). ✔
 
-## Milestone 7b — Frontend (planned, not started)
+## Milestone 7b — Frontend ✅ (done, verified)
 
-Vite + React + TS + Tailwind SPA consuming the API. First iteration: **live
-summarization demo** + **landing/model-comparison dashboard** (dataset explorer + RAG
-page stubbed). To be built as its own step.
+Status: implemented and verified (`npm run build` = tsc clean + vite bundle; `npm test` =
+6 Vitest tests passing; a Node CI job runs build + tests).
+
+- Vite + React + TS + Tailwind SPA in `frontend/`, consuming the API via a typed client
+  (`src/lib/api.ts`) that mirrors the Pydantic schemas; dev proxy forwards `/api` → `:8000`.
+- Pages: **Landing** (real `/api/stats`), **Live demo** (trial → backend → summarize with
+  metadata + per-request provider key, never stored), **Model comparison** (`/api/experiments`
+  → table + Recharts bar chart). **Dataset explorer** + **Research assistant** are stubs
+  (nav complete; backend endpoints already exist) for the next iteration.
+- Shared loading/empty/error states, an AI-generated-not-medical-advice disclaimer, and a
+  responsive layout.
+- Tests: API client (success/error/network/query-string) + Landing + Dashboard empty-state.
+
+Next iteration (not blocking): flesh out the explorer + RAG pages, add upload UI to the
+demo, and code-split the Recharts bundle.
 
 ## Later milestones (deferred — not started)
 - **M8** Integration, security, Docker, CI, docs.
