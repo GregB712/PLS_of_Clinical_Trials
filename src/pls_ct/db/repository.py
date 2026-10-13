@@ -145,3 +145,16 @@ def load_chunks(session: Session) -> list[Chunk]:
 
 def count_chunks(session: Session) -> int:
     return session.scalar(select(func.count()).select_from(Chunk)) or 0
+
+
+def stats(session: Session) -> dict[str, int]:
+    def _count(model) -> int:
+        return session.scalar(select(func.count()).select_from(model)) or 0
+
+    return {
+        "trials": _count(Trial),
+        "documents": _count(Document),
+        "sections": _count(Section),
+        "chunks": _count(Chunk),
+        "experiments": _count(Experiment),
+    }

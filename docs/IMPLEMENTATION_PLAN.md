@@ -159,8 +159,33 @@ Note: the default hashing embedder is deliberately weak (no semantics); retrieva
 on real data improves markedly with the `[rag]` sentence-transformer embedder. Metrics are
 reported honestly, never inflated.
 
+## Milestone 7a — FastAPI backend ✅ (done, verified)
+
+Status: implemented and verified (`ruff` clean, `pytest` 87 passing incl. TestClient API
+tests; real `uvicorn pls_ct.app.main:app` boots and serves). Scoped per agreement:
+backend first, then frontend.
+
+- **App** (`app/`): `create_app(engine)` factory (engine on `app.state`, overridable in
+  tests), CORS (configurable via `PLS_CORS_ORIGINS`), OpenAPI docs, typed Pydantic
+  request/response schemas, and domain-error handlers (provider config/auth/rate-limit →
+  400/401/429; no stack traces leaked).
+- **Endpoints** (under `/api`): `health`, `ready`, `stats`, `backends`; `trials` (paginated
+  + search), trial detail, trial delete (retention); `summarize` (trial or raw text, any
+  backend, optional user-supplied provider key never logged); `rag/ask` (citations);
+  `experiments` list/detail (dashboard data); `uploads` → persisted **preprocess job**
+  (`BackgroundTasks`, size/type validation, server-generated filenames) + `jobs/{id}`.
+- **Jobs**: `Job` table (Alembic migration) persists state across restarts.
+- **Verify:** 17 TestClient tests (seeded temp SQLite) cover health/stats/backends,
+  pagination/search/404, summarize (trial/text/validation/provider-no-key→clean 400),
+  rag, experiments, and the upload→job lifecycle (stubbed extractor). ✔
+
+## Milestone 7b — Frontend (planned, not started)
+
+Vite + React + TS + Tailwind SPA consuming the API. First iteration: **live
+summarization demo** + **landing/model-comparison dashboard** (dataset explorer + RAG
+page stubbed). To be built as its own step.
+
 ## Later milestones (deferred — not started)
-- **M7** Web app (landing, dataset explorer, live demo, comparison dashboard, RAG page).
 - **M8** Integration, security, Docker, CI, docs.
 - **M9** Portfolio polish.
 

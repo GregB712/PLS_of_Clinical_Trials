@@ -160,6 +160,22 @@ pls rag-eval --examples data/processed/examples.jsonl --k 5   # recall@k / preci
 The assistant states when the evidence is insufficient rather than guessing, treats
 retrieved text as reference-only data, and (by construction) cannot execute tools.
 
+### Run the API
+
+A FastAPI backend exposes the whole research core over a typed, OpenAPI-documented HTTP API.
+
+```bash
+pip install -e ".[api]"
+alembic upgrade head
+pls db-load --records data/sample/trials.json        # seed some data
+uvicorn pls_ct.app.main:app --reload                 # http://127.0.0.1:8000
+# docs at /docs ; try: curl localhost:8000/api/stats
+```
+
+Endpoints (under `/api`): `health`, `ready`, `stats`, `backends`, `trials` (+ detail,
+delete), `summarize`, `rag/ask`, `experiments`, `uploads` (→ background preprocess job) and
+`jobs/{id}`. Hosted-provider keys may be supplied per-request and are never logged.
+
 ### Develop
 
 ```bash
