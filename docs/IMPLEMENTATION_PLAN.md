@@ -206,9 +206,27 @@ Status: implemented and verified (`npm run build` = tsc clean + vite bundle; `np
 Polish deferred to M9 (not blocking): code-split the Recharts bundle, accessibility pass,
 screenshots.
 
-## Later milestones (deferred — not started)
-- **M8** Integration, security, Docker, CI, docs.
-- **M9** Portfolio polish.
+## Milestone 8 — Integration, security, Docker, docs ✅ (done, verified where possible)
+
+Status: implemented; backend `ruff` clean + tests passing (incl. a new leak-free-500 test),
+Compose/entrypoint/Makefile syntax-validated. **Docker images were not built** here (no
+Docker in the dev environment) — they are syntax-checked and documented as build-before-rely.
+
+- **Docker stack**: `docker/backend.Dockerfile` (migrate → optional seed → uvicorn via
+  `entrypoint.sh`), `docker/frontend.Dockerfile` (build SPA → nginx), `docker/nginx.conf`
+  (serves the SPA, proxies `/api` same-origin), and `docker-compose.yml` (API + web,
+  SQLite volume; Postgres documented as the scale path). `.dockerignore` keeps data/secrets
+  out of build context.
+- **One-command dev**: `Makefile` (install/api/web/seed/test/lint/build/up/down).
+- **Security hardening**: catch-all exception handler (generic 500, no stack-trace leak,
+  tested); documented posture + pre-public requirements in `docs/SECURITY.md`.
+- **Docs**: `docs/DEPLOYMENT.md` (Compose + non-Docker + config table + Postgres path) and
+  `docs/SECURITY.md`; README Docker quickstart.
+- **Verify:** `ruff` clean; `pytest` (API leak-free-500 test added); Compose YAML parses,
+  `entrypoint.sh` passes `sh -n`, Makefile targets expand. Docker build: unverified here. ✔
+
+## Later milestones
+- **M9** Portfolio polish (accessibility, Recharts code-splitting, screenshots, responsive pass).
 
 Each later milestone starts only after the prior one is runnable and tested, per execution rules.
 

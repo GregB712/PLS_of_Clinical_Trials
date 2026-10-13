@@ -1,0 +1,28 @@
+# One-command local stack: API (SQLite in a volume, seeded with the synthetic sample)
+# + the built frontend served by nginx. Browse http://localhost:8080 ; API at :8000/docs.
+#
+# Postgres is the documented scale path (see docs/DEPLOYMENT.md): point PLS_DATABASE_URL
+# at a Postgres service and add `psycopg[binary]` to the image.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    environment:
+      PLS_SEED_SAMPLE: "1" # seed the synthetic sample on first run; set 0 for an empty DB
+    volumes:
+      - pls-data:/data
+    ports:
+      - "8000:8000"
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+
+volumes:
+  pls-data:

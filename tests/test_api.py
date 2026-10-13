@@ -135,3 +135,26 @@ def test_upload_rejects_non_pdf(client):
 
 def test_job_404(client):
     assert client.get("/api/jobs/999").status_code == 404
+
+
+def test_unhandled_error_is_clean_500_without_leak(tmp_path):
+    # A route that raises an unexpected error must return a generic 500, not a stack trace.
+    from sqlalchemy import create_engine
+
+    from pls_ct.app.main import create_app
+    from pls_ct.db.engine import create_all
+
+    engine = create_engine(f"sqlite:///{tmp_path / 'e.db'}", future=True)
+    create_all(engine)
+    app = create_app(engine=engine)
+
+    @app.get("/api/_boom")
+    def _boom():
+        raise RuntimeError("secret internal detail")
+
+    boom_client = TestClient(app, raise_server_exceptions=False)
+    resp = boom_client.get("/api/_boom")
+    assert resp.status_code == 500
+    body = resp.json()
+    assert body["error"] == "internal_error"
+    assert "secret internal detail" not in resp.text
