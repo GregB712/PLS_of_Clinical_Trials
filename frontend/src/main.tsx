@@ -7,6 +7,8 @@ import { Demo } from "./pages/Demo";
 import { Dashboard } from "./pages/Dashboard";
 import { Explorer } from "./pages/Explorer";
 import { Rag } from "./pages/Rag";
+import { Research } from "./pages/Research";
+import { Settings } from "./pages/Settings";
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -19,6 +21,8 @@ const router = createBrowserRouter([
       { path: "dashboard", element: <Dashboard /> },
       { path: "explorer", element: <Explorer /> },
       { path: "rag", element: <Rag /> },
+      { path: "research", element: <Research /> },
+      { path: "settings", element: <Settings /> },
     ],
   },
 ]);

@@ -182,20 +182,29 @@ backend first, then frontend.
 ## Milestone 7b — Frontend ✅ (done, verified)
 
 Status: implemented and verified (`npm run build` = tsc clean + vite bundle; `npm test` =
-6 Vitest tests passing; a Node CI job runs build + tests).
+8 Vitest tests passing; a Node CI job runs build + tests).
 
 - Vite + React + TS + Tailwind SPA in `frontend/`, consuming the API via a typed client
   (`src/lib/api.ts`) that mirrors the Pydantic schemas; dev proxy forwards `/api` → `:8000`.
-- Pages: **Landing** (real `/api/stats`), **Live demo** (trial → backend → summarize with
-  metadata + per-request provider key, never stored), **Model comparison** (`/api/experiments`
-  → table + Recharts bar chart). **Dataset explorer** + **Research assistant** are stubs
-  (nav complete; backend endpoints already exist) for the next iteration.
+- **All seven pages** of the §10 spec are built:
+  - **Landing** — real `/api/stats`, problem framing, entry points.
+  - **Live demo** — pick a trial **or upload a PDF** (via the background job flow),
+    choose one backend **or compare several**, generate, inspect metadata, and **export** JSON.
+    Optional per-request provider key, never stored.
+  - **Model comparison** — `/api/experiments` → table + Recharts bar chart, metric picker.
+  - **Dataset explorer** — searchable, paginated trial list + per-trial detail (sections).
+  - **Research assistant** — RAG query with trial scoping, answer, citations, and an
+    explicit insufficient-evidence indicator.
+  - **Methodology** — the research story, the honest extractive-QA finding, limitations.
+  - **Settings** — provider key status (read-only from the server), local default prefs,
+    privacy/retention notes.
 - Shared loading/empty/error states, an AI-generated-not-medical-advice disclaimer, and a
   responsive layout.
-- Tests: API client (success/error/network/query-string) + Landing + Dashboard empty-state.
+- Tests: API client (success/error/network/query-string), Landing stats, Dashboard
+  empty-state, Explorer detail-load, RAG ask flow.
 
-Next iteration (not blocking): flesh out the explorer + RAG pages, add upload UI to the
-demo, and code-split the Recharts bundle.
+Polish deferred to M9 (not blocking): code-split the Recharts bundle, accessibility pass,
+screenshots.
 
 ## Later milestones (deferred — not started)
 - **M8** Integration, security, Docker, CI, docs.

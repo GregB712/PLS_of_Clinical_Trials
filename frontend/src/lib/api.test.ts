@@ -46,12 +46,12 @@ describe("api client", () => {
   });
 
   it("builds trial query strings", async () => {
-    const fetchMock = vi.fn(async () =>
+    const fetchMock = vi.fn(async (_url: string) =>
       jsonResponse({ items: [], total: 0, limit: 10, offset: 0 }),
     );
     vi.stubGlobal("fetch", fetchMock);
     await api.trials({ q: "SYN", limit: 10, offset: 5 });
-    const url = fetchMock.mock.calls[0][0] as string;
+    const url = fetchMock.mock.calls[0][0];
     expect(url).toContain("/trials?");
     expect(url).toContain("q=SYN");
     expect(url).toContain("limit=10");

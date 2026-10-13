@@ -6,6 +6,8 @@ const NAV = [
   { to: "/dashboard", label: "Model comparison" },
   { to: "/explorer", label: "Dataset" },
   { to: "/rag", label: "Research assistant" },
+  { to: "/research", label: "Methodology" },
+  { to: "/settings", label: "Settings" },
 ];
 
 export function Layout() {

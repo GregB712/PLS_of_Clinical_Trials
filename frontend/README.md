@@ -28,10 +28,13 @@ Point the SPA at a different API with `VITE_API_TARGET` (dev proxy) or `VITE_API
 | `npm run typecheck` | type-check only |
 | `npm test` | Vitest (API client + page tests, mocked fetch) |
 
-## Pages (first iteration)
+## Pages
 
 - **Landing** — real dataset stats from `/api/stats`.
-- **Live demo** — pick a trial, pick a backend, generate a summary with metadata.
+- **Live demo** — pick a trial or upload a PDF, choose one backend or compare several,
+  generate with metadata, and export the results.
 - **Model comparison** — `/api/experiments` → table + Recharts bar chart.
-- **Dataset explorer** / **Research assistant** — stubs; backend endpoints already exist
-  (`/api/trials`, `/api/rag/ask`) and these are the next iteration.
+- **Dataset explorer** — searchable, paginated trial list + per-trial detail.
+- **Research assistant** — RAG query with citations and an insufficient-evidence indicator.
+- **Methodology** — research story, the honest extractive-QA finding, and limitations.
+- **Settings** — provider key status, local default prefs, privacy/retention notes.

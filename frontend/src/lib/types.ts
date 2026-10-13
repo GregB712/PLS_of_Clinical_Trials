@@ -65,6 +65,33 @@ export interface SummarizeResponse {
   provenance: Record<string, unknown> | null;
 }
 
+export interface Citation {
+  trial_name: string;
+  section: string;
+  start: number;
+  end: number;
+  score: number;
+}
+
+export interface AskResponse {
+  answer: string;
+  sufficient: boolean;
+  citations: Citation[];
+}
+
+export interface JobOut {
+  id: number;
+  kind: string;
+  status: string;
+  result: { n_chars?: number; preview?: string; warnings?: string[] } | null;
+  error: string | null;
+}
+
+export interface UploadResponse {
+  job_id: number;
+  status: string;
+}
+
 export interface ExperimentResult {
   backend: string;
   n_scored: number;
