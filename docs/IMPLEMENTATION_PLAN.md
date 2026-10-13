@@ -21,7 +21,7 @@ Each task lists a **verify** check (goal-driven: the task is done only when the 
 Status: all tasks below implemented; `ruff check .` clean, `pytest` 32 passing,
 `pls demo` runs the full flow on synthetic data (CPU-only, no ML deps). The one
 deferred piece is transformer **fine-tuning** as a CLI command — the preserved
-`Extra Code/train_model.py` remains the training path for now (kept out of an
+`legacy/Extra Code/train_model.py` remains the training path for now (kept out of an
 easy-run command deliberately, per the "don't trigger expensive training" rule).
 
 ### 2.1 Project scaffolding
