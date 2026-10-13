@@ -2,7 +2,7 @@
 
 Device-aware (CPU-first, GPU-automatic) and lazily loaded, so importing this module
 never requires torch. Install the extra with ``pip install -e '.[ml]'`` to use it.
-The instruction prompt mirrors the thesis (``Extra Code/pretrained.py``).
+The instruction prompt mirrors the thesis (``legacy/Extra Code/pretrained.py``).
 """
 
 from __future__ import annotations

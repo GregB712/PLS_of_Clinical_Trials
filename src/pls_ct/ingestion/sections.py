@@ -1,4 +1,4 @@
-"""Section vocabularies for the two document kinds (from ``Preprocess Dataset/parser.py``).
+"""Section vocabularies for the two document kinds (from ``legacy/Preprocess Dataset/parser.py``).
 
 Preserved from the thesis. ``REPORT_SECTIONS`` are the headings in the dense
 Clinical Trial Results report; ``SUMMARY_VARIANTS`` maps the many observed

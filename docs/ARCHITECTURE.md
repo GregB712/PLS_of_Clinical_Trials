@@ -16,7 +16,7 @@ src/pls_ct/                     # installable package ("PLS of Clinical Trials")
   config.py                     # paths + settings from env, with sane defaults
   device.py                     # CPU-first / GPU-auto selection helper
   ingestion/
-    parser.py                   # PDF→sections (refactor of Preprocess Dataset/parser.py)
+    parser.py                   # PDF→sections (refactor of legacy/Preprocess Dataset/parser.py)
     normalize.py                # section normalization (from fixXMl.ipynb)
     pair.py                     # report+summary → database.json (from xml2json.py)
   dataset/
@@ -36,10 +36,10 @@ data/sample/                    # committed synthetic trials (labeled)
 data/{raw,interim,processed}/   # gitignored, local-only
 tests/                          # pytest
 docs/                           # these planning docs
-Extra Code/ , Preprocess Dataset/ , model.ipynb   # ORIGINAL thesis code, preserved verbatim
+legacy/                         # ORIGINAL thesis code, preserved verbatim (archived)
 ```
 
-The original scripts/notebooks (`Extra Code/`, `Preprocess Dataset/`, `model.ipynb`) are **left in place, untouched**, as the preserved thesis record (ruff is configured to skip them). The new `pls_ct` package *re-implements the same logic* in importable, tested, path-parameterized form rather than editing the originals.
+The original scripts/notebooks are preserved **verbatim under `legacy/`** (moved there intact, git history kept; ruff is configured to skip it) as the thesis record. The new `pls_ct` package *re-implements the same logic* in importable, tested, path-parameterized form rather than editing the originals. See `legacy/README.md` for the old→new mapping.
 
 ## 3. Unified model interface
 

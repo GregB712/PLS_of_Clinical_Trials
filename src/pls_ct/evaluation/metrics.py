@@ -1,7 +1,7 @@
 """Summarization/QA metrics — single consolidated implementation.
 
-Merges the two identical copies from the thesis (``Extra Code/common_functions.py``
-and ``Extra Code/evaluate.py``) into one tested module. Numeric behavior is preserved:
+Merges the two identical copies from the thesis (``legacy/Extra Code/common_functions.py``
+and ``legacy/Extra Code/evaluate.py``) into one tested module. Numeric behavior is preserved:
 SQuAD-style normalization, token-F1, exact match, smoothed sentence-BLEU (method4),
 and ROUGE-1/2/L f-measures with stemming.
 

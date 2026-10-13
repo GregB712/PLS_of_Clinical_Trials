@@ -16,6 +16,10 @@ The abstract claims a custom dataset of **286 clinical trials** with simplified 
 
 ## 2. Repository inventory (as committed)
 
+> Note: this inventory reflects the repo **at audit time**. The thesis code below
+> (`Extra Code/`, `Preprocess Dataset/`, `model.ipynb`) has since been moved intact to
+> `legacy/` and re-implemented in `src/pls_ct/`; see `legacy/README.md`.
+
 | Path | Tracked in git? | Role |
 |---|---|---|
 | `README.md` | yes | Thesis overview + tech list |

@@ -22,13 +22,16 @@ For full details, please refer to the [ikee.lib.auth.gr link](http://ikee.lib.au
 
 ## 📂 Repository Structure
 
-├── Extra Code/ # Additional scripts used for automation and testing 
-
-├── Preprocess Dataset/ # Code for preprocessing the clinical trial dataset 
-
-├── model.ipynb # Jupyter notebook for model training and evaluation
-
-└── README.md # Project overview and documentation. You’re here!
+```
+├── src/pls_ct/       # the platform: ingestion, dataset, models, evaluation, rag, db, api, cli
+├── frontend/         # Vite + React + TS web app
+├── migrations/       # Alembic database migrations
+├── docs/             # audit, architecture, plan, dataset, deployment, security
+├── data/sample/      # clearly-labeled synthetic sample (real corpus is non-redistributable)
+├── tests/            # pytest suite
+├── docker/           # Dockerfiles, nginx, entrypoint
+└── legacy/           # original thesis code, preserved verbatim (archived, not maintained)
+```
 
 
 ---
@@ -92,8 +95,8 @@ Additional techniques applied include:
 ## 🔁 Reproducible research core
 
 > This section documents an in-progress upgrade that makes the thesis pipeline
-> reproducible. The original thesis code is preserved **verbatim** in `Extra Code/`,
-> `Preprocess Dataset/`, and `model.ipynb`. Planning and findings live in [`docs/`](docs/)
+> reproducible. The original thesis code is preserved **verbatim** under
+> [`legacy/`](legacy/). Planning and findings live in [`docs/`](docs/)
 > — start with [`docs/PROJECT_AUDIT.md`](docs/PROJECT_AUDIT.md).
 
 **Data note:** the raw Novartis clinical-trial PDFs are treated as **non-redistributable**
