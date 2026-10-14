@@ -123,7 +123,8 @@ def finetune_seq2seq(
         args=args,
         train_dataset=train_ds,
         eval_dataset=eval_ds,
-        tokenizer=tokenizer,
+        # transformers>=5 renamed the Trainer's `tokenizer` arg to `processing_class`.
+        processing_class=tokenizer,
         data_collator=DataCollatorForSeq2Seq(tokenizer, model=model),
         callbacks=[EarlyStoppingCallback(early_stopping_patience=cfg.early_stopping_patience)],
     )
