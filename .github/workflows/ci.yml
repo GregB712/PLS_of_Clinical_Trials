@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install (light: no ML extras, no model downloads)
+      - name: "Install (light: no ML extras, no model downloads)"
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev]"
