@@ -62,8 +62,7 @@ embeddings are optional extras.
 
 ## 📸 Screenshots
 
-_Screenshots to be added._ Capture the running UI (`docker compose up --build`, then
-http://localhost:8080) and drop images under `docs/screenshots/`, e.g.:
+_Screenshots to be added._ 
 
 ```markdown
 ![Live demo](docs/screenshots/demo.png)
@@ -273,8 +272,8 @@ See [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md) for milestone s
 - **Code**: [MIT](LICENSE). Third-party models/libraries keep their own licenses (e.g.
   DistilBERT/Mistral are Apache-2.0).
 - **Data**: the source Novartis clinical-trial documents are treated as
-  **non-redistributable** — they are gitignored and never committed. Only a clearly-labeled
-  **synthetic** sample ships in this repository. Do not add real trial PDFs to the public repo.
+  **non-redistributable**. Only a clearly-labeled
+  **synthetic** sample ships in this repository.
 
 ## 📝 Citation
 
