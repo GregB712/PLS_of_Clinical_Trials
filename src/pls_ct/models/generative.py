@@ -25,6 +25,21 @@ def build_prompt(context: str, question: str) -> str:
     return _PROMPT.format(context=context, question=question)
 
 
+def fit_context(tokenizer, context: str, question: str, max_tokens: int) -> str:
+    """Shorten ``context`` so the whole prompt fits in ``max_tokens``.
+
+    The prompt puts the QUESTION after the CONTEXT, so truncating the tokenized prompt from the
+    right would silently drop the question on long inputs. Cutting the context instead keeps the
+    question and instructions intact.
+    """
+    overhead = len(tokenizer(build_prompt("", question)).input_ids)
+    ids = tokenizer(context, add_special_tokens=False).input_ids
+    budget = max(max_tokens - overhead, 0)
+    if len(ids) <= budget:
+        return context
+    return tokenizer.decode(ids[:budget], skip_special_tokens=True)
+
+
 def _require_ml():
     try:
         import torch  # noqa: F401
@@ -39,8 +54,16 @@ def _require_ml():
 class HFGenerativeBackend:
     """Lazily loads a seq2seq (T5/BART) or causal (Mistral/Llama) model."""
 
-    def __init__(self, model_id: str, *, task: str = "auto", device: str | None = None) -> None:
+    def __init__(
+        self,
+        model_id: str,
+        *,
+        task: str = "auto",
+        device: str | None = None,
+        max_input_tokens: int = 1024,
+    ) -> None:
         self.name = model_id
+        self.max_input_tokens = max_input_tokens  # matches FinetuneConfig.max_input_len
         self.model_id = model_id
         self.task = task
         self.device = resolve_device(device)
@@ -74,20 +97,22 @@ class HFGenerativeBackend:
 
     def summarize(self, context: str, question: str, cfg: GenConfig) -> SummaryResult:
         self._load()
+        context = fit_context(self._tokenizer, context, question, self.max_input_tokens)
         prompt = build_prompt(context, question)
-        inputs = self._tokenizer(prompt, return_tensors="pt", truncation=True)
+        inputs = self._tokenizer(
+            prompt, return_tensors="pt", truncation=True, max_length=self.max_input_tokens
+        )
         if self.device != "cpu":
             inputs = {k: v.to(self.device) for k, v in inputs.items()}
         input_len = int(inputs["input_ids"].shape[-1])
 
         start = time.perf_counter()
+        sampling = {"do_sample": False}
+        if cfg.temperature > 0:
+            sampling = {"do_sample": True, "temperature": cfg.temperature, "top_p": cfg.top_p}
         with self._torch.no_grad():
             output = self._model.generate(
-                **inputs,
-                max_new_tokens=cfg.max_new_tokens,
-                do_sample=cfg.temperature > 0,
-                temperature=max(cfg.temperature, 1e-5),
-                top_p=cfg.top_p,
+                **inputs, max_new_tokens=cfg.max_new_tokens, **sampling
             )
         latency = time.perf_counter() - start
 

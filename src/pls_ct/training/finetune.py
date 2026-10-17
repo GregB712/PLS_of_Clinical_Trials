@@ -16,6 +16,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from pls_ct.device import resolve_device
+from pls_ct.models.generative import fit_context
 from pls_ct.training.dataprep import assert_no_leakage, to_training_pairs
 
 
@@ -26,7 +27,7 @@ class FinetuneConfig:
     learning_rate: float = 3e-4
     batch_size: int = 8
     max_input_len: int = 1024
-    max_target_len: int = 256
+    max_target_len: int = 512  # references: median ~280 tokens; 256 cut half of them
     use_lora: bool = False
     seed: int = 42
     early_stopping_patience: int = 2
@@ -85,6 +86,11 @@ def finetune_seq2seq(
         )
 
     def _prep(rows: list[dict]) -> Dataset:
+        # Shorten long contexts up front so input truncation never cuts off the question.
+        rows = [
+            {**r, "context": fit_context(tokenizer, r["context"], r["question"], cfg.max_input_len)}
+            for r in rows
+        ]
         pairs = to_training_pairs(rows)
         ds = Dataset.from_list(pairs)
 

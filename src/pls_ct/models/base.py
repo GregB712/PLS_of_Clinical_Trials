@@ -15,8 +15,8 @@ from typing import Protocol, runtime_checkable
 class GenConfig:
     """Generation settings. Backends use what applies and ignore the rest."""
 
-    max_new_tokens: int = 256
-    temperature: float = 0.7
+    max_new_tokens: int = 512  # patient-summary answers are long (median ~280 Flan-T5 tokens)
+    temperature: float = 0.0  # greedy: deterministic, so benchmark numbers are reproducible
     top_p: float = 1.0
     seed: int | None = None
 
