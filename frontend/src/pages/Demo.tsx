@@ -84,7 +84,7 @@ export function Demo() {
       return;
     }
     if (!uploadText && !trial) {
-      setError("Pick a trial or upload a PDF first.");
+      setError(uploadsEnabled ? "Pick a trial or upload a PDF first." : "Pick a trial first.");
       return;
     }
     setBusy(true);
@@ -129,8 +129,8 @@ export function Demo() {
   return (
     <div className="space-y-10">
       <PageHeader title="Live summarization demo">
-        Pick a stored trial or upload a PDF, choose one or more backends, and generate a
-        plain-language summary.
+        Pick a stored trial{uploadsEnabled ? " or upload a PDF" : ""}, choose one or more backends,
+        and generate a plain-language summary.
       </PageHeader>
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
@@ -293,7 +293,9 @@ export function Demo() {
             <div className="rounded-[1.125rem] border border-dashed border-line px-6 py-16 text-center">
               <p className="font-serif text-lg text-ink-2">The summary will appear here.</p>
               <p className="footnote mt-1 text-ink-3">
-                Choose a trial or upload a PDF, then generate.
+                {uploadsEnabled
+                  ? "Choose a trial or upload a PDF, then generate."
+                  : "Choose a trial, then generate."}
               </p>
             </div>
           )}
