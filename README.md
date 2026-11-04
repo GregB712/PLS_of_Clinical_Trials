@@ -83,15 +83,6 @@ summarization (across local and hosted backends), RAG, and benchmark results; th
 consumes that API. Everything runs CPU-only by default; GPUs, hosted providers, and stronger
 embeddings are optional extras.
 
-## 📸 Screenshots
-
-_Screenshots to be added._ 
-
-```markdown
-![Live demo](docs/screenshots/demo.png)
-![Model comparison](docs/screenshots/dashboard.png)
-```
-
 ## 🚀 Technologies Used
 
 This thesis leverages modern machine learning and natural language processing (NLP) tools to build and evaluate models for plain language summarization of clinical trial documents. Key technologies and tools include:
