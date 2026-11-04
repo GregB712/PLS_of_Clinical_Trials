@@ -13,11 +13,20 @@ export function PageHeader({ title, children }: { title: string; children?: Reac
   );
 }
 
-export function Stat({ label, value }: { label: string; value: ReactNode }) {
+export function Stat({
+  label,
+  value,
+  small = false,
+}: {
+  label: string;
+  value: ReactNode;
+  small?: boolean;
+}) {
+  const size = small ? "text-xl" : "text-[1.75rem]";
   return (
     <div className="flex flex-col-reverse">
       <dt className="footnote text-ink-2">{label}</dt>
-      <dd className="text-[1.75rem] font-semibold tabular-nums tracking-[-0.02em] text-ink">
+      <dd className={`${size} font-semibold tabular-nums tracking-[-0.02em] text-ink`}>
         {value}
       </dd>
     </div>

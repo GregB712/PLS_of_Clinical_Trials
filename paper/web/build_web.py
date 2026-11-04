@@ -645,7 +645,12 @@ def image_html(state: State, path: str, opt: str, png_dir: Path) -> str:
     scale = float(m.group(1) or 1) if m else 1.0
     size = f' width="{width}" height="{height}"' if width else ""
     style = f' style="max-width:{scale * 100:.0f}%"' if scale < 1 else ""
-    return f'<img src="{FIG_URL}/{dest.name}" alt="" loading="lazy"{size}{style}>'
+    url = f"{FIG_URL}/{dest.name}"
+    return (
+        f'<a class="figure-zoom" href="{url}" target="_blank" rel="noopener"'
+        f' aria-label="Open the full-size figure">'
+        f'<img src="{url}" alt="" loading="lazy"{size}{style}></a>'
+    )
 
 
 def render_chapter(state: State, text: str, png_dir: Path, appendix: bool) -> str:
@@ -727,6 +732,14 @@ class _AnyLabels(dict):
         return True
 
 
+def pdf_date(pdf: Path) -> date:
+    """The PDF's own /CreationDate. File mtimes change on every git checkout."""
+    m = re.search(rb"/CreationDate\s*\(D:(\d{4})(\d{2})(\d{2})", pdf.read_bytes())
+    if not m:
+        raise LatexError(f"no /CreationDate in {pdf}")
+    return date(*(int(g) for g in m.groups()))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--png-dir", type=Path, default=ROOT / "paper_results" / "figures")
@@ -768,7 +781,7 @@ def main() -> int:
     abstract_html = "".join(paragraphs(state, abstract_src))
     words = len(re.sub("<[^>]+>", " ", abstract_html + body).split())
     pdf = PAPER / "main.pdf"
-    built = date.fromtimestamp(pdf.stat().st_mtime) if pdf.exists() else date.today()
+    built = pdf_date(pdf)
 
     paper = {
         "meta": {

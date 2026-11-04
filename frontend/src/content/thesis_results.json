@@ -1,0 +1,474 @@
+{
+ "source": "Barmpas, Plain Language Summarization of Clinical Trials (MSc thesis, 2026)",
+ "corpus": {
+  "pdfs": 561,
+  "protocolIds": 273,
+  "pairs": 256,
+  "usableTrials": 212,
+  "examples": 959,
+  "questions": 8,
+  "questionsWithExamples": 7
+ },
+ "splits": {
+  "train": {
+   "trials": 148,
+   "examples": 676
+  },
+  "val": {
+   "trials": 32,
+   "examples": 145
+  },
+  "test": {
+   "trials": 31,
+   "examples": 138
+  }
+ },
+ "text": {
+  "contextWordsMedian": 136.0,
+  "referenceWordsMedian": 183.0,
+  "contextFkglMedian": 15.1,
+  "referenceFkglMedian": 10.03,
+  "referenceNovelBigramsMean": 0.96
+ },
+ "headline": {
+  "model": "Flan-T5-small, fine-tuned (3 seeds)",
+  "rougeLMean": 22.36,
+  "rougeLStd": 0.39,
+  "lead3RougeL": 11.41
+ },
+ "testSet": {
+  "examples": 138,
+  "trials": 31
+ },
+ "systems": [
+  {
+   "id": "lead-1",
+   "model": "Lead-1",
+   "family": "Extractive baseline",
+   "decoding": "n/a",
+   "n": 138,
+   "metrics": {
+    "rouge1": {
+     "mean": 10.63,
+     "lo": 9.28,
+     "hi": 11.93
+    },
+    "rouge2": {
+     "mean": 2.03,
+     "lo": 1.54,
+     "hi": 2.58
+    },
+    "rougeL": {
+     "mean": 7.83,
+     "lo": 6.88,
+     "hi": 8.72
+    },
+    "bleu": {
+     "mean": 0.41,
+     "lo": 0.26,
+     "hi": 0.58
+    },
+    "token_f1": {
+     "mean": 9.73,
+     "lo": 8.51,
+     "hi": 10.89
+    },
+    "bertscore_f1": {
+     "mean": -8.94,
+     "lo": -11.01,
+     "hi": -6.93
+    }
+   }
+  },
+  {
+   "id": "lead-2",
+   "model": "Lead-2",
+   "family": "Extractive baseline",
+   "decoding": "n/a",
+   "n": 138,
+   "metrics": {
+    "rouge1": {
+     "mean": 15.04,
+     "lo": 13.49,
+     "hi": 16.63
+    },
+    "rouge2": {
+     "mean": 2.93,
+     "lo": 2.13,
+     "hi": 4.13
+    },
+    "rougeL": {
+     "mean": 10.23,
+     "lo": 9.09,
+     "hi": 11.38
+    },
+    "bleu": {
+     "mean": 0.9,
+     "lo": 0.5,
+     "hi": 1.51
+    },
+    "token_f1": {
+     "mean": 13.95,
+     "lo": 12.5,
+     "hi": 15.34
+    },
+    "bertscore_f1": {
+     "mean": -6.79,
+     "lo": -8.78,
+     "hi": -4.74
+    }
+   }
+  },
+  {
+   "id": "lead-3",
+   "model": "Lead-3",
+   "family": "Extractive baseline",
+   "decoding": "n/a",
+   "n": 138,
+   "metrics": {
+    "rouge1": {
+     "mean": 17.59,
+     "lo": 15.89,
+     "hi": 19.1
+    },
+    "rouge2": {
+     "mean": 3.37,
+     "lo": 2.38,
+     "hi": 4.72
+    },
+    "rougeL": {
+     "mean": 11.41,
+     "lo": 10.2,
+     "hi": 12.77
+    },
+    "bleu": {
+     "mean": 1.35,
+     "lo": 0.7,
+     "hi": 2.31
+    },
+    "token_f1": {
+     "mean": 16.35,
+     "lo": 14.82,
+     "hi": 17.93
+    },
+    "bertscore_f1": {
+     "mean": -6.22,
+     "lo": -8.38,
+     "hi": -4.09
+    }
+   }
+  },
+  {
+   "id": "distilbert-squad",
+   "model": "DistilBERT-SQuAD (QA)",
+   "family": "Extractive QA",
+   "decoding": "n/a",
+   "n": 138,
+   "metrics": {
+    "rouge1": {
+     "mean": 3.46,
+     "lo": 2.32,
+     "hi": 4.7
+    },
+    "rouge2": {
+     "mean": 0.92,
+     "lo": 0.55,
+     "hi": 1.37
+    },
+    "rougeL": {
+     "mean": 2.72,
+     "lo": 1.94,
+     "hi": 3.6
+    },
+    "bleu": {
+     "mean": 0.09,
+     "lo": 0.01,
+     "hi": 0.2
+    },
+    "token_f1": {
+     "mean": 3.26,
+     "lo": 2.25,
+     "hi": 4.48
+    },
+    "bertscore_f1": {
+     "mean": -7.92,
+     "lo": -10.18,
+     "hi": -5.76
+    }
+   }
+  },
+  {
+   "id": "flan-t5-small-zs-nr3",
+   "model": "Flan-T5-small (0-shot)",
+   "family": "Zero-shot generative",
+   "decoding": "greedy, no-repeat-3",
+   "n": 138,
+   "metrics": {
+    "rouge1": {
+     "mean": 5.72,
+     "lo": 4.64,
+     "hi": 6.74
+    },
+    "rouge2": {
+     "mean": 1.19,
+     "lo": 0.81,
+     "hi": 1.59
+    },
+    "rougeL": {
+     "mean": 4.43,
+     "lo": 3.71,
+     "hi": 5.13
+    },
+    "bleu": {
+     "mean": 0.06,
+     "lo": 0.03,
+     "hi": 0.1
+    },
+    "token_f1": {
+     "mean": 5.34,
+     "lo": 4.41,
+     "hi": 6.25
+    },
+    "bertscore_f1": {
+     "mean": -14.06,
+     "lo": -16.45,
+     "hi": -11.57
+    }
+   }
+  },
+  {
+   "id": "flan-t5-base-zs-nr3",
+   "model": "Flan-T5-base (0-shot)",
+   "family": "Zero-shot generative",
+   "decoding": "greedy, no-repeat-3",
+   "n": 138,
+   "metrics": {
+    "rouge1": {
+     "mean": 10.08,
+     "lo": 8.74,
+     "hi": 11.37
+    },
+    "rouge2": {
+     "mean": 2.14,
+     "lo": 1.61,
+     "hi": 2.68
+    },
+    "rougeL": {
+     "mean": 7.19,
+     "lo": 6.25,
+     "hi": 8.07
+    },
+    "bleu": {
+     "mean": 0.23,
+     "lo": 0.14,
+     "hi": 0.31
+    },
+    "token_f1": {
+     "mean": 9.56,
+     "lo": 8.35,
+     "hi": 10.86
+    },
+    "bertscore_f1": {
+     "mean": -7.29,
+     "lo": -9.56,
+     "hi": -5.07
+    }
+   }
+  },
+  {
+   "id": "qwen2.5-1.5b-instruct-zs-nr3",
+   "model": "Qwen2.5-1.5B-Instruct (0-shot)",
+   "family": "Zero-shot generative",
+   "decoding": "greedy, no-repeat-3",
+   "n": 138,
+   "metrics": {
+    "rouge1": {
+     "mean": 20.06,
+     "lo": 19.0,
+     "hi": 21.07
+    },
+    "rouge2": {
+     "mean": 3.15,
+     "lo": 2.78,
+     "hi": 3.51
+    },
+    "rougeL": {
+     "mean": 11.43,
+     "lo": 10.64,
+     "hi": 12.15
+    },
+    "bleu": {
+     "mean": 0.84,
+     "lo": 0.69,
+     "hi": 0.99
+    },
+    "token_f1": {
+     "mean": 18.43,
+     "lo": 17.37,
+     "hi": 19.32
+    },
+    "bertscore_f1": {
+     "mean": 1.73,
+     "lo": -0.42,
+     "hi": 3.67
+    }
+   }
+  },
+  {
+   "id": "ft-flan-t5-small-s42-nr3",
+   "model": "Flan-T5-small FT (seed 42)",
+   "family": "Fine-tuned",
+   "decoding": "greedy, no-repeat-3",
+   "n": 138,
+   "metrics": {
+    "rouge1": {
+     "mean": 36.8,
+     "lo": 35.12,
+     "hi": 38.59
+    },
+    "rouge2": {
+     "mean": 14.89,
+     "lo": 13.31,
+     "hi": 16.51
+    },
+    "rougeL": {
+     "mean": 22.22,
+     "lo": 20.43,
+     "hi": 23.88
+    },
+    "bleu": {
+     "mean": 8.25,
+     "lo": 6.74,
+     "hi": 9.86
+    },
+    "token_f1": {
+     "mean": 35.23,
+     "lo": 33.61,
+     "hi": 36.97
+    },
+    "bertscore_f1": {
+     "mean": 11.39,
+     "lo": 8.58,
+     "hi": 14.02
+    }
+   }
+  },
+  {
+   "id": "ft-flan-t5-small-s43-nr3",
+   "model": "Flan-T5-small FT (seed 43)",
+   "family": "Fine-tuned",
+   "decoding": "greedy, no-repeat-3",
+   "n": 138,
+   "metrics": {
+    "rouge1": {
+     "mean": 37.1,
+     "lo": 35.38,
+     "hi": 38.65
+    },
+    "rouge2": {
+     "mean": 15.11,
+     "lo": 13.69,
+     "hi": 16.52
+    },
+    "rougeL": {
+     "mean": 22.05,
+     "lo": 20.5,
+     "hi": 23.56
+    },
+    "bleu": {
+     "mean": 8.42,
+     "lo": 7.19,
+     "hi": 9.59
+    },
+    "token_f1": {
+     "mean": 35.75,
+     "lo": 33.96,
+     "hi": 37.26
+    },
+    "bertscore_f1": {
+     "mean": 11.03,
+     "lo": 8.2,
+     "hi": 13.62
+    }
+   }
+  },
+  {
+   "id": "ft-flan-t5-small-s44-nr3",
+   "model": "Flan-T5-small FT (seed 44)",
+   "family": "Fine-tuned",
+   "decoding": "greedy, no-repeat-3",
+   "n": 138,
+   "metrics": {
+    "rouge1": {
+     "mean": 37.68,
+     "lo": 35.73,
+     "hi": 39.65
+    },
+    "rouge2": {
+     "mean": 15.71,
+     "lo": 13.82,
+     "hi": 17.76
+    },
+    "rougeL": {
+     "mean": 22.8,
+     "lo": 20.76,
+     "hi": 24.81
+    },
+    "bleu": {
+     "mean": 9.54,
+     "lo": 7.78,
+     "hi": 11.47
+    },
+    "token_f1": {
+     "mean": 36.24,
+     "lo": 34.39,
+     "hi": 38.11
+    },
+    "bertscore_f1": {
+     "mean": 11.19,
+     "lo": 8.36,
+     "hi": 13.78
+    }
+   }
+  },
+  {
+   "id": "ft-flan-t5-base-lora-s42-nr3",
+   "model": "Flan-T5-base LoRA FT (seed 42)",
+   "family": "Fine-tuned",
+   "decoding": "greedy, no-repeat-3",
+   "n": 138,
+   "metrics": {
+    "rouge1": {
+     "mean": 32.28,
+     "lo": 31.01,
+     "hi": 33.49
+    },
+    "rouge2": {
+     "mean": 10.77,
+     "lo": 9.83,
+     "hi": 11.81
+    },
+    "rougeL": {
+     "mean": 18.43,
+     "lo": 17.4,
+     "hi": 19.43
+    },
+    "bleu": {
+     "mean": 5.72,
+     "lo": 4.78,
+     "hi": 6.74
+    },
+    "token_f1": {
+     "mean": 31.07,
+     "lo": 29.85,
+     "hi": 32.3
+    },
+    "bertscore_f1": {
+     "mean": 8.0,
+     "lo": 6.19,
+     "hi": 9.76
+    }
+   }
+  }
+ ]
+}
