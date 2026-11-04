@@ -3,7 +3,7 @@ import { api, ApiError } from "../lib/api";
 import { useAsync } from "../hooks/useAsync";
 import { Banner, Card, Disclaimer, PageHeader, Segmented, Spinner, Switch } from "../components/ui";
 import { loadPrefs } from "../lib/prefs";
-import type { SummarizeResponse } from "../lib/types";
+import type { BackendInfo, SummarizeResponse } from "../lib/types";
 
 const STYLES = {
   Overview: "Summarize this clinical trial for a non-specialist in plain language.",
@@ -43,7 +43,10 @@ export function Demo() {
   const [error, setError] = useState<string>();
   const [results, setResults] = useState<Outcome[]>([]);
 
-  const available = (backends.data?.backends ?? []).filter((b) => b.available);
+  // Hosted providers are usable without a server key: the visitor can paste their own.
+  const usable = (b: BackendInfo) => b.available || b.kind === "provider";
+  const available = (backends.data?.backends ?? []).filter(usable);
+  const uploadsEnabled = backends.data?.uploads_enabled ?? true;
 
   async function handleUpload(file: File) {
     setUploading(true);
@@ -155,25 +158,29 @@ export function Demo() {
             </select>
             {trials.error && <Banner kind="error">{trials.error}</Banner>}
 
-            <label
-              className={`block cursor-pointer rounded-xl border border-dashed px-4 py-3 text-sm transition-colors ${
-                source === "upload"
-                  ? "border-accent bg-accent-soft"
-                  : "border-line hover:border-ink-3 hover:bg-sunken"
-              }`}
-            >
-              <span className="font-medium text-ink">Or upload a PDF</span>
-              <span className="block text-xs text-ink-3">Text is extracted and used as context.</span>
-              <input
-                type="file"
-                accept="application/pdf"
-                className="sr-only"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) void handleUpload(f);
-                }}
-              />
-            </label>
+            {uploadsEnabled ? (
+              <label
+                className={`block cursor-pointer rounded-xl border border-dashed px-4 py-3 text-sm transition-colors ${
+                  source === "upload"
+                    ? "border-accent bg-accent-soft"
+                    : "border-line hover:border-ink-3 hover:bg-sunken"
+                }`}
+              >
+                <span className="font-medium text-ink">Or upload a PDF</span>
+                <span className="block text-xs text-ink-3">Text is extracted and used as context.</span>
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  className="sr-only"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void handleUpload(f);
+                  }}
+                />
+              </label>
+            ) : (
+              <p className="footnote text-ink-3">PDF upload is turned off in this public demo.</p>
+            )}
             {uploading && <Spinner label="Preprocessing PDF…" />}
             {uploadMsg && <p className="footnote text-ink-2">{uploadMsg}</p>}
           </fieldset>
@@ -191,9 +198,13 @@ export function Demo() {
                 onChange={(e) => setPrimary(e.target.value)}
               >
                 {backends.data?.backends.map((b) => (
-                  <option key={b.spec} value={b.spec} disabled={!b.available}>
+                  <option key={b.spec} value={b.spec} disabled={!usable(b)}>
                     {b.spec}
-                    {b.available ? "" : ` (${b.detail ?? "unavailable"})`}
+                    {b.available
+                      ? ""
+                      : b.kind === "provider"
+                        ? " (needs your API key)"
+                        : ` (${b.detail ?? "unavailable"})`}
                   </option>
                 ))}
               </select>

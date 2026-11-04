@@ -1,0 +1,15 @@
+# Python service for the Vercel deployment (see vercel.json at the repository root).
+# It installs the repository's own package with the API and hosted-provider extras.
+# The heavy [ml] extra is left out on purpose: torch/transformers exceed the function size
+# limit, so the local transformer backends show as unavailable in the demo.
+[project]
+name = "pls-ct-vercel-api"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["pls-ct[api,providers]"]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+pls-ct = { path = "../..", editable = false }

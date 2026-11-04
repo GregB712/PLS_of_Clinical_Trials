@@ -33,6 +33,34 @@ make api         # terminal 1: uvicorn on :8000
 make web         # terminal 2: vite on :5173 (proxies /api -> :8000)
 ```
 
+## Public read-only demo on Vercel
+
+`vercel.json` deploys the app as one Vercel project with two services:
+
+- **web** (`frontend/`): the Vite build, served statically, with a fallback to `index.html`
+  so links such as `/paper` work.
+- **api** (`deploy/vercel/`): the FastAPI app as a Python function. Its `pyproject.toml`
+  installs this repository's package with the `api` and `providers` extras.
+
+The demo is **read-only**. At build time, `deploy/vercel/build_demo_db.py` creates
+`deploy/vercel/demo.db` from the committed synthetic sample only (trials, RAG index, a Lead-k
+benchmark). `deploy/vercel/main.py` opens it read-only and sets `PLS_READ_ONLY=1`, so PDF uploads
+and trial deletion return 403, and the Demo page hides the upload box.
+
+What works: the lead baselines, the research assistant, the dataset explorer, model
+comparison and the Paper page. Hosted providers work when the visitor pastes their own API key
+in the Demo page; it is sent with that request only. What does not: the local transformer
+backends (`torch`/`transformers` exceed the function size limit), and uploads.
+
+**Do not set provider API keys on the Vercel project.** The demo has no authentication or rate
+limiting, so a server-side key could be used by anyone.
+
+Check the build locally (requires the Vercel CLI and `uv`):
+
+```bash
+vercel build          # after `vercel link` / `vercel pull`
+```
+
 ## Configuration
 
 | Variable | Purpose | Default |
@@ -41,6 +69,7 @@ make web         # terminal 2: vite on :5173 (proxies /api -> :8000)
 | `PLS_PROCESSED_DIR` | writable data dir (SQLite, uploads) | `data/processed` (`/data` in Docker) |
 | `PLS_SEED_SAMPLE` | seed synthetic data on container start | `1` in Compose |
 | `PLS_CORS_ORIGINS` | comma-separated allowed origins | `localhost:5173` |
+| `PLS_READ_ONLY` | refuse uploads and deletions (public demo) | unset |
 | `PLS_DEVICE` | `auto`\|`cpu`\|`cuda`\|`mps` | `auto` |
 | `ANTHROPIC_/OPENAI_/GOOGLE_API_KEY` | hosted-provider keys (optional) | unset |
 

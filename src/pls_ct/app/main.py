@@ -25,13 +25,19 @@ def _cors_origins() -> list[str]:
     return [o.strip() for o in raw.split(",") if o.strip()]
 
 
-def create_app(engine: Engine | None = None) -> FastAPI:
+def _read_only() -> bool:
+    return os.environ.get("PLS_READ_ONLY", "").lower() in {"1", "true", "yes"}
+
+
+def create_app(engine: Engine | None = None, *, read_only: bool | None = None) -> FastAPI:
     app = FastAPI(
         title="PLS of Clinical Trials API",
         version=__version__,
         description="Plain-language summarization of clinical trials — research platform API.",
     )
     app.state.engine = engine or get_engine()
+    # Read-only mode (public demo deployments): uploads and deletions are refused.
+    app.state.read_only = _read_only() if read_only is None else read_only
     app.add_middleware(
         CORSMiddleware,
         allow_origins=_cors_origins(),

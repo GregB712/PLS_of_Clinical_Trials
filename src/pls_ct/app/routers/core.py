@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -34,7 +34,7 @@ def stats(session: Session = Depends(get_session)) -> Stats:
 
 
 @router.get("/backends", response_model=BackendsResponse)
-def backends() -> BackendsResponse:
+def backends(request: Request) -> BackendsResponse:
     from pls_ct.providers import DEFAULT_MODELS, PROVIDERS, make_provider
 
     infos = [
@@ -62,7 +62,7 @@ def backends() -> BackendsResponse:
                 detail="configured" if provider.has_key() else f"set ${provider.api_key_env}",
             )
         )
-    return BackendsResponse(backends=infos)
+    return BackendsResponse(backends=infos, uploads_enabled=not request.app.state.read_only)
 
 
 def _ml_available() -> bool:

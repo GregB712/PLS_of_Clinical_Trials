@@ -51,7 +51,7 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   stats: () => http<Stats>("/stats"),
-  backends: () => http<{ backends: BackendInfo[] }>("/backends"),
+  backends: () => http<{ backends: BackendInfo[]; uploads_enabled?: boolean }>("/backends"),
   trials: (params: { q?: string; limit?: number; offset?: number } = {}) => {
     const qs = new URLSearchParams();
     if (params.q) qs.set("q", params.q);
