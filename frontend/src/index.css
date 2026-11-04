@@ -1,29 +1,602 @@
 @import "tailwindcss";
 
-/* Brand palette as Tailwind v4 theme tokens → generates bg-brand, text-brand, etc. */
+/*
+ * Design tokens. Tailwind v4 exposes these as utilities (bg-canvas, text-ink-2, border-line…)
+ * and as CSS variables, so the dark-mode block below only has to redefine the variables.
+ */
 @theme {
-  --color-brand: #0f766e;
-  --color-brand-dark: #115e59;
+  --color-canvas: #f4f6f6;
+  --color-surface: #ffffff;
+  --color-sunken: #eef1f1;
+  --color-ink: #1f2a28;
+  --color-ink-2: #56625f;
+  --color-ink-3: #85908d;
+  --color-line: #dde3e2;
+  --color-accent: #0b6e5f;
+  --color-accent-strong: #08574b;
+  --color-accent-soft: #e3f1ee;
+  --color-mark: #fbe38a;
+
+  /* Legacy aliases so any remaining brand utilities keep working. */
+  --color-brand: var(--color-accent);
+  --color-brand-dark: var(--color-accent-strong);
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-serif: "Iowan Old Style", "Charter", "Bitstream Charter", "Source Serif 4", "Sitka Text",
+    Cambria, Georgia, serif;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 :root {
   color-scheme: light;
+  --nav-bg: rgb(244 246 246 / 0.72);
+  --shadow-card: 0 1px 2px rgb(16 32 28 / 0.04), 0 4px 16px -8px rgb(16 32 28 / 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --color-canvas: #0f1514;
+    --color-surface: #172120;
+    --color-sunken: #121a19;
+    --color-ink: #e7edeb;
+    --color-ink-2: #a3afac;
+    --color-ink-3: #74807d;
+    --color-line: #2a3634;
+    --color-accent: #4cc2ac;
+    --color-accent-strong: #79d6c4;
+    --color-accent-soft: #173a34;
+    --color-mark: rgb(250 214 90 / 0.3);
+    --nav-bg: rgb(15 21 20 / 0.72);
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+  }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  @apply bg-slate-50 text-slate-800 antialiased;
+  @apply bg-canvas font-sans text-ink antialiased;
+  font-size: 1rem;
+  line-height: 1.5;
+  /* Ease light/dark switches instead of a hard brightness jump. */
+  transition: background-color 300ms ease, color 300ms ease;
 }
 
-/* Visible keyboard-focus ring for all interactive elements. */
+@layer components {
+/* Size-specific tracking: tighten as type grows, leave body text alone. */
+.display {
+  font-size: clamp(2.25rem, 5.2vw, 3.75rem);
+  line-height: 1.04;
+  letter-spacing: -0.032em;
+  font-weight: 700;
+  text-wrap: balance;
+}
+.title-1 {
+  font-size: clamp(1.75rem, 3.4vw, 2.25rem);
+  line-height: 1.12;
+  letter-spacing: -0.024em;
+  font-weight: 700;
+  text-wrap: balance;
+}
+.title-2 {
+  font-size: 1.1875rem;
+  line-height: 1.3;
+  letter-spacing: -0.012em;
+  font-weight: 600;
+}
+.footnote {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  letter-spacing: 0.004em;
+}
+
+/* Reading text: generated summaries, answers, long-form methodology. */
+.prose-read {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.62;
+  max-width: 68ch;
+  text-wrap: pretty;
+}
+
+/* ---------- Surfaces ---------- */
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 1.125rem;
+  box-shadow: var(--shadow-card);
+}
+
+/* Frosted navigation layer: content scrolls underneath it. */
+.nav-material {
+  background: var(--nav-bg);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 1px 0 var(--color-line);
+}
+
+/* ---------- Controls ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0 1.1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 160ms var(--ease-out-soft),
+    background-color 160ms ease,
+    border-color 160ms ease,
+    opacity 160ms ease;
+}
+/* Feedback lands on press, not on release. */
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+  transition-duration: 60ms;
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--color-accent);
+  color: #fff;
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-accent-strong);
+}
+@media (prefers-color-scheme: dark) {
+  .btn-primary {
+    color: #06201b;
+  }
+}
+.btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border: 1px solid var(--color-line);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--color-sunken);
+}
+.btn-small {
+  min-height: 2rem;
+  padding: 0 0.8rem;
+  font-size: 0.8125rem;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink-2);
+  margin-bottom: 0.375rem;
+}
+
+.input {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 0.625rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-sunken);
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+}
+.input::placeholder {
+  color: var(--color-ink-3);
+}
+.input:hover {
+  border-color: color-mix(in srgb, var(--color-ink-3) 50%, var(--color-line));
+}
+.input:focus {
+  outline: none;
+  background: var(--color-surface);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 22%, transparent);
+}
+select.input {
+  appearance: none;
+  padding-right: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' fill='none' stroke='%2385908d' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+}
+textarea.input {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+input[type="range"] {
+  accent-color: var(--color-accent);
+  width: 100%;
+}
+input[type="checkbox"] {
+  accent-color: var(--color-accent);
+}
+
+/* Segmented control: one track, a raised thumb on the selected segment. */
+.segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 0.75rem;
+  background: var(--color-sunken);
+  border: 1px solid var(--color-line);
+}
+.segmented button {
+  min-height: 2.125rem;
+  padding: 0 0.6rem;
+  border-radius: 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-ink-2);
+  transition: background-color 200ms var(--ease-out-soft), color 200ms ease, box-shadow 200ms ease;
+}
+.segmented button[aria-checked="true"] {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.1), 0 0 0 0.5px rgb(0 0 0 / 0.04);
+}
+
+/* Switch: thumb slides with a slight overshoot because the press carried intent. */
+.switch {
+  position: relative;
+  flex: none;
+  width: 2.75rem;
+  height: 1.625rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-ink-3) 40%, var(--color-line));
+  transition: background-color 220ms ease;
+}
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.18);
+  transition: transform 280ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.switch[aria-checked="true"] {
+  background: var(--color-accent);
+}
+.switch[aria-checked="true"]::after {
+  transform: translateX(1.125rem);
+}
+
+/* Grouped list, as in system Settings. */
+.grouped > * + * {
+  border-top: 1px solid var(--color-line);
+}
+
+/* ---------- Signature: the highlighter ---------- */
+
+.mark {
+  background-image: linear-gradient(var(--color-mark), var(--color-mark));
+  background-repeat: no-repeat;
+  background-position: 0 88%;
+  background-size: 100% 0.42em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 0.08em;
+}
+.mark-sweep {
+  animation: mark-sweep 900ms var(--ease-out-soft) 450ms both;
+}
+@keyframes mark-sweep {
+  from {
+    background-size: 0% 0.42em;
+  }
+  to {
+    background-size: 100% 0.42em;
+  }
+}
+
+/* Content that arrives in answer to an action fades up, once. */
+.arrive {
+  animation: arrive 360ms var(--ease-out-soft) both;
+}
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* ---------- Paper: long-form article ---------- */
+
+  .article {
+    font-family: var(--font-serif);
+    font-size: 1.1875rem;
+    line-height: 1.65;
+    color: var(--color-ink);
+    text-wrap: pretty;
+    hanging-punctuation: first;
+  }
+  @media (min-width: 640px) {
+    .article {
+      font-size: 1.25rem;
+    }
+  }
+  .article p {
+    margin: 0 0 1.15em;
+  }
+  .article h2,
+  .article h3,
+  .article h4 {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    scroll-margin-top: 5rem;
+    text-wrap: balance;
+  }
+  .article h2 {
+    margin: 3.5em 0 0.9em;
+    font-size: 1.625rem;
+    line-height: 1.2;
+    letter-spacing: -0.022em;
+    font-weight: 700;
+  }
+  .article h2 .heading-number {
+    display: block;
+    margin-bottom: 0.35em;
+    font-size: 0.8125rem;
+    letter-spacing: 0;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+  .article h3 {
+    margin: 2.2em 0 0.6em;
+    font-size: 1.25rem;
+    line-height: 1.3;
+    letter-spacing: -0.014em;
+    font-weight: 650;
+  }
+  .article h4 {
+    margin: 1.8em 0 0.5em;
+    font-size: 1.0625rem;
+    font-weight: 650;
+  }
+  .article h3 .heading-number,
+  .article h4 .heading-number {
+    margin-right: 0.35em;
+    color: var(--color-ink-3);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .article .article-kicker {
+    margin: 0 0 0.6em;
+    font-size: 0.875rem;
+    letter-spacing: 0;
+    font-weight: 600;
+    color: var(--color-ink-2);
+  }
+  .article .standfirst {
+    color: var(--color-ink-2);
+  }
+  .article strong {
+    font-weight: 700;
+  }
+  .article a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
+    text-underline-offset: 0.18em;
+  }
+  .article a:hover {
+    text-decoration-color: currentColor;
+  }
+  .article a.cite,
+  .article a.xref {
+    text-decoration: none;
+  }
+  .article a.cite:hover,
+  .article a.xref:hover {
+    text-decoration: underline;
+  }
+  .article code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.8em;
+    padding: 0.1em 0.35em;
+    border-radius: 0.35em;
+    background: var(--color-sunken);
+    overflow-wrap: anywhere;
+  }
+  .article .math i {
+    font-style: italic;
+  }
+  .article sup,
+  .article sub {
+    font-size: 0.7em;
+    line-height: 0;
+  }
+  .article ul,
+  .article ol {
+    margin: 0 0 1.15em;
+    padding-left: 1.5em;
+  }
+  .article ul {
+    list-style: disc;
+  }
+  .article ol {
+    list-style: decimal;
+  }
+  .article li {
+    margin: 0.45em 0;
+    padding-left: 0.2em;
+  }
+  .article li::marker {
+    color: var(--color-ink-3);
+  }
+  .article .paper-dl {
+    margin: 0 0 1.15em;
+  }
+  .article .paper-dl dt {
+    font-weight: 700;
+    margin-top: 0.9em;
+  }
+  .article .paper-dl dd {
+    margin: 0.15em 0 0;
+  }
+
+  /* Figures and tables break out of the text column, up to 56rem. */
+  .article figure {
+    margin: 2.4em calc(50% - min(50vw - 1rem, 28rem));
+    scroll-margin-top: 5rem;
+  }
+  .article figure img {
+    display: block;
+    margin-inline: auto;
+    width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+    background: #fff; /* figures are drawn on white; keep them legible in dark mode */
+    padding: 0.5rem;
+    box-shadow: 0 0 0 1px var(--color-line);
+  }
+  .article figcaption {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--color-ink-2);
+    max-width: 42.5rem;
+    margin: 0.9em auto 0;
+  }
+  .article .float-label {
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .article .paper-table figcaption {
+    margin: 0 auto 0.9em;
+  }
+  .article .table-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+    background: var(--color-surface);
+  }
+  .article table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+  }
+  .article th,
+  .article td {
+    padding: 0.5em 0.75em;
+    vertical-align: top;
+  }
+  .article thead th {
+    font-weight: 600;
+    color: var(--color-ink-2);
+    border-bottom: 1px solid var(--color-line);
+    background: var(--color-sunken);
+  }
+  .article tbody + tbody {
+    border-top: 1px solid var(--color-line);
+  }
+  .article tbody tr:nth-child(even) td {
+    background: color-mix(in srgb, var(--color-sunken) 45%, transparent);
+  }
+  .article td:first-child {
+    font-weight: 500;
+    min-width: 9rem;
+  }
+  .article .a-right {
+    text-align: right;
+    white-space: nowrap;
+  }
+  .article .a-center {
+    text-align: center;
+  }
+  .article .a-left {
+    text-align: left;
+  }
+
+  .article .references {
+    list-style: none;
+    padding: 0;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--color-ink-2);
+  }
+  .article .references li {
+    margin: 0 0 0.9em;
+    padding: 0.25em 0 0 1.5em;
+    text-indent: -1.5em;
+    scroll-margin-top: 5rem;
+    border-radius: 0.375rem;
+  }
+  .article .references li:target {
+    background: var(--color-accent-soft);
+    color: var(--color-ink);
+  }
+  .article .references a {
+    overflow-wrap: anywhere;
+  }
+
+  .article details.greek summary {
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+  .article details.greek > div {
+    margin-top: 1em;
+    color: var(--color-ink-2);
+  }
+
+  /* ---------- Charts (Recharts) ---------- */
+
+.chart .recharts-cartesian-grid line {
+  stroke: var(--color-line);
+}
+.chart .recharts-cartesian-axis-tick text {
+  fill: var(--color-ink-3);
+}
+.chart .recharts-cartesian-axis-line,
+.chart .recharts-cartesian-axis-tick-line {
+  stroke: var(--color-line);
+}
+.chart .recharts-tooltip-cursor {
+  fill: var(--color-sunken);
+}
+}
+
+/* ---------- Accessibility ---------- */
+
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
-textarea:focus-visible {
-  @apply outline-none ring-2 ring-brand ring-offset-2;
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
-/* Screen-reader-only helper (visible when focused — used by the skip link). */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -43,4 +616,46 @@ textarea:focus-visible {
   overflow: visible;
   clip: auto;
   white-space: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
+  .btn:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .nav-material {
+    background: var(--color-canvas);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) and (prefers-color-scheme: light) {
+  :root {
+    --color-line: #8a9592;
+    --color-ink-2: #2f3a38;
+    --color-ink-3: #4a5553;
+  }
+}
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+  :root {
+    --color-line: #6b7775;
+    --color-ink-2: #cdd6d3;
+    --color-ink-3: #aab5b2;
+  }
+}
+@media (prefers-contrast: more) {
+  .nav-material {
+    background: var(--color-canvas);
+    backdrop-filter: none;
+  }
 }

@@ -58,3 +58,21 @@ htmlcov/
 *.swp
 .idea/
 .vscode/
+
+# The thesis (paper/) is published on purpose: keep its PDF and figures despite the
+# *.pdf and results/ rules above, but not LaTeX build artifacts.
+!paper/Figures/results/
+!paper/**/*.pdf
+paper/**/*.aux
+paper/**/*.log
+paper/**/*.bbl
+paper/**/*.bcf
+paper/**/*.blg
+paper/**/*.fls
+paper/**/*.fdb_latexmk
+paper/**/*.out
+paper/**/*.toc
+paper/**/*.lof
+paper/**/*.lot
+paper/**/*.run.xml
+paper/**/*.synctex.gz

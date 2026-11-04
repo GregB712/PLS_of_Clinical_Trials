@@ -1,23 +1,24 @@
 import { useState } from "react";
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { api } from "../lib/api";
 import { useAsync } from "../hooks/useAsync";
-import { Banner, Card, Spinner } from "../components/ui";
+import { Banner, Card, PageHeader, Segmented, Spinner } from "../components/ui";
 
-const METRICS = ["F1 Score", "ROUGE-1", "ROUGE-2", "ROUGE-L", "BLEU Score"];
+const METRICS = ["F1 Score", "ROUGE-1", "ROUGE-2", "ROUGE-L", "BLEU Score"] as const;
+type Metric = (typeof METRICS)[number];
+
+const fmt = (v: number | null | undefined) => (v != null ? v.toFixed(2) : "n/a");
 
 export function Dashboard() {
   const experiments = useAsync(() => api.experiments(), []);
-  const [metric, setMetric] = useState("F1 Score");
+  const [metric, setMetric] = useState<Metric>("F1 Score");
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Model comparison</h1>
-        <p className="mt-1 text-slate-600">
-          Backends scored on the same examples. Benchmark results only — distinct from the live demo.
-        </p>
-      </div>
+    <div className="space-y-10">
+      <PageHeader title="Model comparison">
+        Backends scored on the same examples. These are benchmark results, kept separate from the
+        live demo.
+      </PageHeader>
 
       {experiments.loading && <Spinner />}
       {experiments.error && <Banner kind="error">{experiments.error}</Banner>}
@@ -27,67 +28,98 @@ export function Dashboard() {
         </Banner>
       )}
 
+      {experiments.data && experiments.data.length > 0 && (
+        <div className="max-w-xl">
+          <Segmented label="Metric" options={METRICS} value={metric} onChange={setMetric} />
+        </div>
+      )}
+
       {experiments.data?.map((exp) => {
         const chartData = exp.results.map((r) => ({
           backend: r.backend,
           value: Number((r.aggregate[metric] ?? 0).toFixed(2)),
         }));
+        const best = Math.max(...exp.results.map((r) => r.aggregate[metric] ?? -Infinity));
         return (
-          <Card key={exp.id} className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="font-semibold text-slate-900">
-                Experiment #{exp.id} · {exp.n_examples} examples · {exp.split_fingerprint}
-              </h2>
-              <label className="text-sm text-slate-600">
-                Metric{" "}
-                <select
-                  className="rounded-md border border-slate-300 px-2 py-1"
-                  value={metric}
-                  onChange={(e) => setMetric(e.target.value)}
-                >
-                  {METRICS.map((m) => (
-                    <option key={m}>{m}</option>
-                  ))}
-                </select>
-              </label>
+          <Card key={exp.id} className="space-y-6">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h2 className="title-2 text-ink">Experiment {exp.id}</h2>
+              <p className="footnote flex flex-wrap gap-x-4 tabular-nums text-ink-3">
+                <span>{exp.n_examples} examples</span>
+                <span>Split {exp.split_fingerprint}</span>
+              </p>
             </div>
 
-            <div className="h-64 w-full">
+            <div className="chart h-64 w-full text-accent" role="img" aria-label={`${metric} by backend`}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="backend" fontSize={12} />
-                  <YAxis fontSize={12} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="value" name={metric} fill="#0f766e" />
+                <BarChart data={chartData} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey="backend" fontSize={12} tickLine={false} />
+                  <YAxis fontSize={12} tickLine={false} axisLine={false} />
+                  <Tooltip
+                    cursor={{ className: "recharts-tooltip-cursor" }}
+                    contentStyle={{
+                      background: "var(--color-surface)",
+                      border: "1px solid var(--color-line)",
+                      borderRadius: 12,
+                      fontSize: 13,
+                      color: "var(--color-ink)",
+                    }}
+                    labelStyle={{ fontWeight: 600, color: "var(--color-ink)" }}
+                  />
+                  <Bar
+                    dataKey="value"
+                    name={metric}
+                    fill="currentColor"
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={56}
+                    isAnimationActive={false}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="border-b border-slate-200 text-slate-500">
-                  <tr>
-                    <th className="py-2 pr-4">Backend</th>
+            <div className="-mx-5 overflow-x-auto sm:-mx-6">
+              <table className="w-full text-left text-sm tabular-nums">
+                <thead className="footnote text-ink-3">
+                  <tr className="border-b border-line">
+                    <th className="py-2 pl-5 pr-4 font-medium sm:pl-6">Backend</th>
                     {METRICS.map((m) => (
-                      <th key={m} className="py-2 pr-4">{m}</th>
+                      <th
+                        key={m}
+                        className={`px-3 py-2 text-right font-medium ${m === metric ? "text-ink" : ""}`}
+                      >
+                        {m}
+                      </th>
                     ))}
-                    <th className="py-2 pr-4">scored</th>
-                    <th className="py-2">errors</th>
+                    <th className="px-3 py-2 text-right font-medium">Scored</th>
+                    <th className="py-2 pl-3 pr-5 text-right font-medium sm:pr-6">Errors</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-line">
                   {exp.results.map((r) => (
-                    <tr key={r.backend} className="border-b border-slate-100">
-                      <td className="py-2 pr-4 font-medium">{r.backend}</td>
-                      {METRICS.map((m) => (
-                        <td key={m} className="py-2 pr-4">
-                          {r.aggregate[m] != null ? r.aggregate[m].toFixed(2) : "—"}
-                        </td>
-                      ))}
-                      <td className="py-2 pr-4">{r.n_scored}</td>
-                      <td className="py-2">{r.n_errors}</td>
+                    <tr key={r.backend}>
+                      <td className="py-2.5 pl-5 pr-4 font-medium text-ink sm:pl-6">{r.backend}</td>
+                      {METRICS.map((m) => {
+                        const v = r.aggregate[m];
+                        const isBest = m === metric && v != null && v === best;
+                        return (
+                          <td
+                            key={m}
+                            className={`px-3 py-2.5 text-right ${
+                              isBest
+                                ? "font-semibold text-accent"
+                                : m === metric
+                                  ? "text-ink"
+                                  : "text-ink-2"
+                            }`}
+                          >
+                            {fmt(v)}
+                          </td>
+                        );
+                      })}
+                      <td className="px-3 py-2.5 text-right text-ink-2">{r.n_scored}</td>
+                      <td className="py-2.5 pl-3 pr-5 text-right text-ink-2 sm:pr-6">{r.n_errors}</td>
                     </tr>
                   ))}
                 </tbody>

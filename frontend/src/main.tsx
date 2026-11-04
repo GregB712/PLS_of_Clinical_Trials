@@ -13,6 +13,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard").then((m) => ({ default:
 const Explorer = lazy(() => import("./pages/Explorer").then((m) => ({ default: m.Explorer })));
 const Rag = lazy(() => import("./pages/Rag").then((m) => ({ default: m.Rag })));
 const Research = lazy(() => import("./pages/Research").then((m) => ({ default: m.Research })));
+const Paper = lazy(() => import("./pages/Paper").then((m) => ({ default: m.Paper })));
 const Settings = lazy(() => import("./pages/Settings").then((m) => ({ default: m.Settings })));
 
 function page(element: React.ReactNode) {
@@ -29,6 +30,7 @@ const router = createBrowserRouter([
       { path: "dashboard", element: page(<Dashboard />) },
       { path: "explorer", element: page(<Explorer />) },
       { path: "rag", element: page(<Rag />) },
+      { path: "paper", element: page(<Paper />) },
       { path: "research", element: page(<Research />) },
       { path: "settings", element: page(<Settings />) },
     ],
