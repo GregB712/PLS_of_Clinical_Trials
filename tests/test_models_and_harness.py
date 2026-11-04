@@ -79,3 +79,42 @@ def test_ml_backend_raises_helpful_error_without_torch(monkeypatch):
     backend = DistilBertQABackend()
     with pytest.raises(RuntimeError, match=r"\[ml\]"):
         backend.summarize("ctx", "q", GenConfig())
+
+
+class _WordTokenizer:
+    """Whitespace stand-in for a HF tokenizer: one token per word."""
+
+    def __call__(self, text, add_special_tokens=True):
+        class Enc:
+            input_ids = text.split()
+
+        return Enc()
+
+    def decode(self, ids, skip_special_tokens=True):
+        return " ".join(ids)
+
+
+def test_fit_context_keeps_question_when_context_is_long():
+    from pls_ct.models.generative import fit_context
+
+    tok = _WordTokenizer()
+    question = "Why was the research needed?"
+    overhead = len(tok(build_prompt("", question)).input_ids)
+    ctx = " ".join(f"w{i}" for i in range(500))
+    fitted = fit_context(tok, ctx, question, max_tokens=overhead + 50)
+    prompt = build_prompt(fitted, question)
+    assert len(tok(prompt).input_ids) <= overhead + 50
+    assert question in prompt  # the question survives; the context is what gets cut
+    assert fitted.split() == [f"w{i}" for i in range(50)]
+
+
+def test_fit_context_leaves_short_context_unchanged():
+    from pls_ct.models.generative import fit_context
+
+    assert fit_context(_WordTokenizer(), "short context", "Q?", max_tokens=1024) == "short context"
+
+
+def test_default_generation_is_deterministic_and_long_enough():
+    cfg = GenConfig()
+    assert cfg.temperature == 0.0  # greedy by default: benchmark numbers are reproducible
+    assert cfg.max_new_tokens >= 512  # median test reference is ~280 Flan-T5 tokens
