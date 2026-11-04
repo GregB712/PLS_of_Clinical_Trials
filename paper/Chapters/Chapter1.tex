@@ -1,0 +1,36 @@
+% Chapter 1
+
+\chapter{Introduction} % Main chapter title
+\label{Chapter1}
+
+\section{Problem Statement}
+
+Clinical trial results are reported for specialists. A typical results report states objectives as statistical hypotheses, describes populations through inclusion and exclusion criteria, and reports outcomes as endpoints, hazard ratios and adverse-event tables. Patients, carers and most members of the public cannot use that text directly. Regulators have recognised the gap: in the European Union, Regulation (EU) No 536/2014 requires the sponsor of a clinical trial to provide, together with the summary of results, a summary written in a manner that is understandable to laypersons, with its content set out in Annex V of the Regulation \parencite[Art.~37(4)]{eu2014ctr}.
+
+Writing these plain-language summaries (PLS) by hand is slow and requires both medical and communication expertise. This motivates automatic generation. The difficulty is that a useful PLS must do two things at once: change the register of the text (shorter sentences, everyday words, explained terms) and stay faithful to the trial. A fluent summary that states an outcome the trial did not report is worse than no summary.
+
+This thesis revisits the plain-language summarisation study of the original MSc project \parencite{barmpas2024pls} with a rebuilt dataset, a corrected evaluation protocol and a broader set of systems. All experiments run on a CPU-only machine.
+
+\section{Research Questions}
+
+The study answers four research questions.
+
+\begin{description}
+    \item[RQ1.] Can small, CPU-trainable models generate plain-language answers that match human patient summaries better than extractive and zero-shot baselines?
+    \item[RQ2.] Does the extractive question-answering framing used in the original thesis suit the task?
+    \item[RQ3.] How sensitive are the conclusions to decoding settings and to the choice of metric?
+    \item[RQ4.] Do automatic metrics reflect faithfulness to the source?
+\end{description}
+
+\section{Contributions}
+
+\begin{enumerate}
+    \item \textbf{A rebuilt, leakage-free dataset.} From 561 Novartis clinical-trial PDFs we derive 959 (question, report section, plain-language answer) examples from 212 usable trials, split by trial into training, validation and test sets (Chapter~\ref{data}). The split removes the cross-question leakage of the original row-level split.
+    \item \textbf{A controlled comparison of nine systems (eleven runs, counting three training seeds)} on an identical 138-example test set from 31 held-out trials: extractive Lead-$k$ baselines, an extractive question-answering model, zero-shot instruction-tuned models, and fine-tuned Flan-T5 (Chapters~\ref{methods} and~\ref{results}). Every result carries a trial-level bootstrap confidence interval, and the main comparisons are tested with Holm-corrected paired tests.
+    \item \textbf{Evidence that the evaluation itself is fragile.} Decoding settings alone can reverse the conclusion that a metric supports, and overlap metrics rank a model that loops in most of its outputs above an extractive baseline (Section~\ref{sec:decoding}).
+    \item \textbf{An analysis of faithfulness} with string-level proxies and a qualitative example, which suggests that the automatic metrics reward the style of patient summaries more than their correctness, and that the dataset construction itself pushes models towards unsupported details (Chapter~\ref{analysis}).
+\end{enumerate}
+
+\section{Thesis Overview}
+
+Chapter~\ref{related_work} reviews work on lay summarisation of biomedical text, faithfulness evaluation and text degeneration. Chapter~\ref{data} describes the corpus, the dataset construction and how the plain-language targets differ from their sources. Chapter~\ref{methods} defines the systems, the decoding protocol, the metrics and the statistical analysis. Chapter~\ref{results} reports the main comparison and the decoding ablation. Chapter~\ref{analysis} analyses per-question performance, the length, readability and faithfulness proxies of the outputs, and a qualitative example, and answers the research questions. Chapter~\ref{conclusion} states the limitations, future work and conclusions. Appendix~\ref{AppendixA} holds supporting material on training, compute cost, retrieval and reproducibility.

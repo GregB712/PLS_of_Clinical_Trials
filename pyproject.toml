@@ -77,10 +77,12 @@ target-version = "py310"
 src = ["src", "tests"]
 # Original thesis code is preserved verbatim under legacy/; do not lint/reformat it.
 # `migrations/versions` holds Alembic-generated files; leave them as generated.
+# paper/Tables/make_tables.py is the thesis's own table generator, kept as written.
 extend-exclude = [
     "legacy",
     "*.ipynb",
     "migrations/versions",
+    "paper/Tables/make_tables.py",
 ]
 
 [tool.ruff.lint]

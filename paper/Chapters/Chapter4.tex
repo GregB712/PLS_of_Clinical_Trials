@@ -1,0 +1,50 @@
+% Chapter 4
+
+\chapter{Methods} % Main chapter title
+\label{methods}
+
+\section{Input Preparation}
+
+Every system receives the same prompt, the one defined in the original thesis: the context, then the question, then an instruction to answer using only the context and in plain language. The context is capped at 900 Flan-T5 tokens so that the question, which follows the context, is never truncated away. The cap affected 4 of 138 test examples and 26 of 676 training examples. The input budget is 1024 tokens and the output (and training target) budget is 512 tokens. All systems are evaluated on the identical 138 test examples.
+
+\section{Systems}
+
+\begin{description}
+    \item[Lead-$k$ ($k = 1, 2, 3$).] The first $k$ sentences of the context. These extractive baselines need no model.
+    \item[DistilBERT-SQuAD.] The \nolinkurl{distilbert-base-cased-distilled-squad} checkpoint \parencite{sanh2019distilbert,rajpurkar2016squad}, used off the shelf. It extracts a span from the context and represents the extractive question-answering framing of the original thesis.
+    \item[Flan-T5-small and Flan-T5-base, zero-shot.] The \texttt{google/flan-t5-small} and \texttt{-base} checkpoints \parencite{chung2024flan} without task training.
+    \item[Qwen2.5-1.5B-Instruct, zero-shot.] A decoder-only instruction-tuned model \parencite{qwen2024qwen25}, run with its chat template in bfloat16. It is a CPU-feasible stand-in for the Mistral-7B-Instruct model of the original thesis, \emph{not} a reproduction of it.
+    \item[Flan-T5-small, fully fine-tuned.] 5 epochs, learning rate $3\times10^{-4}$, batch size 4, fused AdamW, linear schedule without warm-up, weight decay 0, early stopping on validation loss with patience 2 (never triggered). Trained with seeds 42, 43 and 44.
+    \item[Flan-T5-base with LoRA.] LoRA \parencite{hu2022lora} with rank $r = 8$, $\alpha = 8$, dropout 0, applied to the query and value projections; 3 epochs, learning rate $10^{-3}$, batch size 2, seed 42.
+\end{description}
+
+The training batch sizes were reduced from 8 (Flan-T5-small) and 4 (Flan-T5-base with LoRA) after a first attempt ran out of memory on the 15~GB machine. The LoRA configuration has a single seed and, as Appendix~\ref{sec:training} shows, was still improving when its budget ran out.
+
+\section{Decoding}
+\label{sec:decoding_protocol}
+
+The main protocol is greedy decoding with \texttt{no\_repeat\_ngram\_size} $= 3$, which forbids any word-piece trigram from appearing twice in the generated text. Plain greedy decoding is reported as an ablation (Section~\ref{sec:decoding}). Greedy decoding replaces the temperature-0.7 sampling of the repository defaults, which is not reproducible.
+
+For decoder-only models, the Hugging Face implementation of the no-repeat constraint also scans the prompt, so it forbids copying any trigram of the source. We restricted the constraint to generated tokens, which matches its behaviour for encoder-decoder models. The superseded Qwen run with the prompt-scanning behaviour is kept with the results for transparency but not reported.
+
+\section{Metrics}
+\label{sec:metrics}
+
+All overlap and semantic metrics are reported on a 0--100 scale.
+
+\begin{itemize}
+    \item \textbf{Overlap metrics:} ROUGE-1, ROUGE-2 and ROUGE-L F1 with stemming \parencite{lin2004rouge}; sentence-level BLEU \parencite{papineni2002bleu} with smoothing method 4 \parencite{chen2014smoothing}; and token F1 after SQuAD-style normalisation \parencite{rajpurkar2016squad}. Exact match is 0 for every system, because no output reproduces a free-text reference exactly, so it is omitted.
+    \item \textbf{BERTScore-F1} \parencite{zhang2020bertscore} with \texttt{roberta-large} and \textbf{baseline rescaling}. Rescaling places the score of unrelated text pairs near zero, so negative values are expected for weak systems and are not an error.
+    \item \textbf{Readability:} Flesch--Kincaid grade level (FKGL) \parencite{kincaid1975} and Flesch Reading Ease \parencite{flesch1948}, computed with \texttt{textstat}. Readability is computed only for outputs of at least three words.
+    \item \textbf{Faithfulness proxies.} \emph{Number support} is the share of numbers in an output that also appear in the context. \emph{Code support} is the same for drug and protocol codes such as ACZ885. A number or code absent from the context is a candidate unsupported detail. Both are string-matching signals, not factuality judgements: they ignore non-numeric claims and can miss a correct number written in another format.
+    \item \textbf{Abstractiveness:} the share of output bigrams that do not occur in the context (\emph{novel bigrams}).
+    \item \textbf{Repetition:} the share of repeated word trigrams in an output. An output counts as repetitive when this share exceeds 0.2.
+\end{itemize}
+
+\section{Statistical Analysis}
+
+Examples from the same trial are correlated, so a per-example bootstrap would give intervals that are too narrow. We therefore report 95\% confidence intervals from a \textbf{cluster bootstrap over trials} \parencite{efron1994bootstrap} with 2000 resamples (seed 42). Pairs of systems are compared with paired Wilcoxon signed-rank tests \parencite{wilcoxon1945} on per-example differences, with Holm correction \parencite{holm1979} over the family of 20 comparisons (10 system pairs, two metrics each). As effect sizes we report the mean difference with its trial-level confidence interval and the share of examples on which the first system scores higher. With 138 examples, very small $p$-values say little about practical importance, so the discussion relies on the effect sizes.
+
+\section{Compute and Software}
+
+All experiments ran on a CPU-only machine (8 cores, 15~GB RAM, WSL2) without a GPU. Each fine-tuning run took between 93.8 and 99.6 minutes (Appendix~\ref{sec:cost}). Software versions: Python 3.14.4, PyTorch 2.14.1, Transformers 5.19.0 \parencite{wolf2020transformers}, PEFT 0.21.2, rouge-score 0.1.2, NLTK 3.10.3, bert-score 0.3.13 and textstat 0.7.13. Appendix~\ref{sec:repro} lists where this protocol deviates from the repository defaults.

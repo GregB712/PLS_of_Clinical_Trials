@@ -1,0 +1,36 @@
+% Chapter 7
+
+\chapter{Limitations, Future Work and Conclusions} % Main chapter title
+\label{conclusion}
+
+\section{Limitations}
+\label{sec:limitations}
+
+The limitations are listed in order of importance.
+
+\begin{enumerate}
+    \item \textbf{No human evaluation.} The faithfulness evidence consists of string-level proxies and one qualitative example. A blinded human evaluation has been prepared (30 test examples, four systems, 120 items, rated for unsupported claims, completeness and plainness against the model input) but not yet carried out. Until it is, the claim that the metrics reward style rather than correctness remains of moderate strength.
+    \item \textbf{The question-to-section mapping is inherited and defective.} One question yields no examples, two others receive only part of the relevant report, and the references contain information absent from the input.
+    \item \textbf{Single test split.} The test set has 31 trials and 138 examples. The confidence intervals reflect this, but there is no cross-validation.
+    \item \textbf{Compute.} All work ran on a CPU. The LoRA configuration has one seed and was under-trained within its budget, and no model of the 7-billion-parameter scale of the original thesis was run.
+    \item \textbf{Metric caveats.} The $n$-gram metrics and BERTScore measure similarity to a single reference, and the references are not ground truth for every fact.
+    \item \textbf{Decoding trade-off.} The no-repeat constraint removes loops but corrupts legitimately repeated entities such as drug codes.
+    \item \textbf{Corpus.} All documents come from one sponsor (Novartis) and are in English. 44 trials were lost to PDF parsing failures.
+    \item \textbf{Minor non-determinism in ingestion.} Three of the 959 examples differed in token order between two runs of the same pipeline.
+\end{enumerate}
+
+\section{Future Work}
+\label{sec:future}
+
+\begin{itemize}
+    \item \textbf{Fix the data.} Map the adverse-events question to the safety sections of the reports, which would add about 179 examples, and give models the full report rather than single sections, so that the input supports the references.
+    \item \textbf{Measure faithfulness directly.} Complete the human evaluation and add QA-based \parencite{wang2020qags} or NLI-based \parencite{laban2022summac} consistency metrics.
+    \item \textbf{Better decoding.} Prevent loops without blocking legitimate repeats, for example with contrastive search \parencite{su2022contrastive} or a repetition penalty that exempts tokens copied from the source.
+    \item \textbf{More compute.} Train on GPUs with larger models, more seeds and longer LoRA training.
+\end{itemize}
+
+\section{Conclusions}
+
+This thesis rebuilt the plain-language summarisation dataset of the original study from 561 Novartis clinical-trial PDFs, obtaining 959 question-level examples from 212 usable trials, split by trial. On a held-out test set of 31 trials, fine-tuned Flan-T5-small improves every automatic metric by a wide margin over extractive and zero-shot baselines and matches the length and readability of human patient summaries, using only a CPU.
+
+The evaluation also shows why these numbers should not be read as quality. The extractive question-answering framing of the original thesis cannot work on this data, because no reference occurs in its source. Decoding settings alone can make ROUGE endorse looping output. And qualitative inspection together with string-level proxies suggests that the metrics reward the register of patient summaries rather than their correctness, a tendency the dataset construction reinforces by pairing references with inputs that do not contain all of their facts. Generating plain-language summaries of clinical trials that patients can trust will need better-specified inputs, direct measurement of faithfulness, and human evaluation.

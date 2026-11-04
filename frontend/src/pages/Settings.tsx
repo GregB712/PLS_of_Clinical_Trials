@@ -1,7 +1,8 @@
 import { useState } from "react";
+import type React from "react";
 import { api } from "../lib/api";
 import { useAsync } from "../hooks/useAsync";
-import { Banner, Card, Spinner } from "../components/ui";
+import { Banner, PageHeader, Spinner } from "../components/ui";
 import { loadPrefs, savePrefs } from "../lib/prefs";
 
 export function Settings() {
@@ -19,50 +20,61 @@ export function Settings() {
   const providers = backends.data?.backends.filter((b) => b.kind === "provider") ?? [];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-        <p className="mt-1 text-slate-600">Model providers, defaults, and data handling.</p>
-      </div>
+    <div className="mx-auto max-w-2xl space-y-10">
+      <PageHeader title="Settings">Model providers, defaults, and data handling.</PageHeader>
 
-      <Card className="space-y-3">
-        <h2 className="font-semibold text-slate-900">Hosted providers</h2>
-        <p className="text-sm text-slate-600">
-          Keys are configured on the server via environment variables and are never sent to or stored
-          in the browser. You can also supply a key per-request in the live demo (used once, never
-          stored). This page only reports configuration status.
-        </p>
-        {backends.loading && <Spinner />}
-        {backends.error && <Banner kind="error">{backends.error}</Banner>}
-        <ul className="divide-y divide-slate-100 text-sm">
-          {providers.map((p) => (
-            <li key={p.spec} className="flex items-center justify-between py-2">
-              <span className="text-slate-700">{p.spec}</span>
+      <Group
+        title="Hosted providers"
+        footer="Keys are configured on the server through environment variables and are never sent to or stored in the browser. You can also supply a key per request in the live demo; it is used once and never stored."
+      >
+        {backends.loading && (
+          <div className="px-5 py-3">
+            <Spinner />
+          </div>
+        )}
+        {backends.error && (
+          <div className="p-3">
+            <Banner kind="error">{backends.error}</Banner>
+          </div>
+        )}
+        {providers.map((p) => (
+          <div key={p.spec} className="flex items-center justify-between gap-4 px-5 py-3 text-sm">
+            <span className="font-medium text-ink">{p.spec}</span>
+            <span
+              className={`flex items-center gap-1.5 text-[0.8125rem] ${
+                p.available ? "text-accent" : "text-ink-3"
+              }`}
+            >
               <span
-                className={`rounded-full px-2 py-0.5 text-xs ${
-                  p.available ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"
-                }`}
-              >
-                {p.available ? "configured" : p.detail ?? "no key"}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </Card>
+                aria-hidden="true"
+                className={`h-1.5 w-1.5 rounded-full ${p.available ? "bg-accent" : "bg-ink-3"}`}
+              />
+              {p.available ? "Configured" : p.detail ?? "No key"}
+            </span>
+          </div>
+        ))}
+        {backends.data && providers.length === 0 && (
+          <p className="px-5 py-3 text-sm text-ink-3">No hosted providers are registered.</p>
+        )}
+      </Group>
 
-      <Card className="space-y-3">
-        <h2 className="font-semibold text-slate-900">Default summarization settings</h2>
-        <p className="text-sm text-slate-600">Stored locally in your browser only.</p>
-        <label className="block text-sm text-slate-700">
-          Default backend
+      <Group
+        title="Summarization defaults"
+        footer={saved ? "Saved to this browser." : "Stored locally in this browser only."}
+      >
+        <label className="flex items-center justify-between gap-4 px-5 py-3">
+          <span className="text-sm font-medium text-ink">Default backend</span>
           <input
-            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2"
+            className="input max-w-56 text-right"
             value={prefs.backend}
             onChange={(e) => update("backend", e.target.value)}
           />
         </label>
-        <label className="block text-sm text-slate-700">
-          Default max new tokens: {prefs.maxTokens}
+        <label className="block px-5 py-3.5">
+          <span className="mb-2 flex justify-between text-sm font-medium text-ink">
+            Default max new tokens
+            <span className="tabular-nums text-ink-2">{prefs.maxTokens}</span>
+          </span>
           <input
             type="range"
             min={64}
@@ -70,20 +82,35 @@ export function Settings() {
             step={32}
             value={prefs.maxTokens}
             onChange={(e) => update("maxTokens", Number(e.target.value))}
-            className="mt-1 w-full"
           />
         </label>
-        {saved && <p className="text-xs text-emerald-600">Saved to this browser.</p>}
-      </Card>
+      </Group>
 
-      <Card className="space-y-2">
-        <h2 className="font-semibold text-slate-900">Privacy &amp; retention</h2>
-        <p className="text-sm text-slate-600">
+      <Group title="Privacy and retention">
+        <p className="px-5 py-4 text-sm leading-relaxed text-ink-2">
           Uploaded PDFs are processed into text for summarization and are not added to the public
           dataset. Provider API keys are never logged. For a public deployment, review the data
           provenance and retention notes in the repository before enabling uploads.
         </p>
-      </Card>
+      </Group>
     </div>
+  );
+}
+
+function Group({
+  title,
+  footer,
+  children,
+}: {
+  title: string;
+  footer?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-2">
+      <h2 className="px-5 text-sm font-semibold text-ink-2">{title}</h2>
+      <div className="card grouped overflow-hidden">{children}</div>
+      {footer && <p className="footnote px-5 text-ink-3">{footer}</p>}
+    </section>
   );
 }
