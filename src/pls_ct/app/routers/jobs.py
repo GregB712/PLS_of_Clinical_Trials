@@ -9,7 +9,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request,
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from pls_ct.app.deps import get_session
+from pls_ct.app.deps import get_session, require_writable
 from pls_ct.app.schemas import JobOut, UploadResponse
 from pls_ct.config import Config
 from pls_ct.db.models import Job
@@ -55,7 +55,12 @@ def run_preprocess(engine: Engine, job_id: int, path: str) -> None:
         session.close()
 
 
-@router.post("/uploads", response_model=UploadResponse, status_code=202)
+@router.post(
+    "/uploads",
+    response_model=UploadResponse,
+    status_code=202,
+    dependencies=[Depends(require_writable)],
+)
 async def upload(
     request: Request,
     background: BackgroundTasks,

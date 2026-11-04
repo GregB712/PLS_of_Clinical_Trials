@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 
-from fastapi import Request
+from fastapi import HTTPException, Request
 from sqlalchemy.orm import Session, sessionmaker
 
 from pls_ct.models.base import SummarizerBackend
@@ -23,6 +23,15 @@ def get_session(request: Request) -> Iterator[Session]:
         raise
     finally:
         session.close()
+
+
+def require_writable(request: Request) -> None:
+    """Refuse state-changing requests when the app runs in read-only mode."""
+    if request.app.state.read_only:
+        raise HTTPException(
+            status_code=403,
+            detail="this is a read-only demo: uploads and deletions are disabled",
+        )
 
 
 def resolve_backend(spec: str, *, api_key: str | None = None) -> SummarizerBackend:

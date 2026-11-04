@@ -33,6 +33,7 @@ class BackendInfo(BaseModel):
 
 class BackendsResponse(BaseModel):
     backends: list[BackendInfo]
+    uploads_enabled: bool = True  # False in read-only (demo) deployments
 
 
 class TrialSummary(BaseModel):

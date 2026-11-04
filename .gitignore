@@ -76,3 +76,4 @@ paper/**/*.lof
 paper/**/*.lot
 paper/**/*.run.xml
 paper/**/*.synctex.gz
+.vercel

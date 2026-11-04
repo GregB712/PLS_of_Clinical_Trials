@@ -158,3 +158,33 @@ def test_unhandled_error_is_clean_500_without_leak(tmp_path):
     body = resp.json()
     assert body["error"] == "internal_error"
     assert "secret internal detail" not in resp.text
+
+
+def test_read_only_mode_refuses_writes_but_serves_reads(tmp_path, monkeypatch):
+    monkeypatch.setenv("PLS_PROCESSED_DIR", str(tmp_path))
+    engine = create_engine(f"sqlite:///{tmp_path / 'ro.db'}", future=True)
+    create_all(engine)
+    with Session(engine, future=True) as s:
+        repository.load_records(s, load_records(SAMPLE))
+        s.commit()
+    client = TestClient(create_app(engine=engine, read_only=True))
+
+    assert client.get("/api/stats").json()["trials"] == 6
+    assert client.get("/api/backends").json()["uploads_enabled"] is False
+
+    up = client.post("/api/uploads", files={"file": ("a.pdf", b"%PDF-1.4", "application/pdf")})
+    assert up.status_code == 403
+    assert not (tmp_path / "uploads").exists()
+
+    trial = client.get("/api/trials").json()["items"][0]["protocol_id"]
+    assert client.delete(f"/api/trials/{trial}").status_code == 403
+    assert client.get(f"/api/trials/{trial}").status_code == 200
+
+
+def test_read_only_flag_from_env(tmp_path, monkeypatch):
+    monkeypatch.setenv("PLS_READ_ONLY", "1")
+    engine = create_engine(f"sqlite:///{tmp_path / 'e.db'}", future=True)
+    create_all(engine)
+    assert TestClient(create_app(engine=engine)).get("/api/backends").json()[
+        "uploads_enabled"
+    ] is False

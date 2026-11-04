@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from pls_ct.app.deps import get_session
+from pls_ct.app.deps import get_session, require_writable
 from pls_ct.app.schemas import DocumentOut, TrialDetail, TrialPage, TrialSummary
 from pls_ct.db import repository
 from pls_ct.db.models import Trial
@@ -63,7 +63,7 @@ def get_trial(protocol_id: str, session: Session = Depends(get_session)) -> Tria
     )
 
 
-@router.delete("/{protocol_id}", status_code=204)
+@router.delete("/{protocol_id}", status_code=204, dependencies=[Depends(require_writable)])
 def delete_trial(protocol_id: str, session: Session = Depends(get_session)) -> None:
     trial = repository.get_trial(session, protocol_id)
     if trial is None:
