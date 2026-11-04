@@ -32,3 +32,14 @@ thesis figures are PDFs, so `--png-dir` must hold a PNG with the same name for e
 plotting scripts write both). The converter handles exactly the LaTeX this thesis uses and
 stops with an error on anything else, so a new macro has to be taught to it rather than
 being silently dropped. Section, figure and table numbers follow LaTeX's own numbering.
+
+The full-study numbers on the Landing and Model comparison pages come from the same result
+tables:
+
+```bash
+python paper/web/build_results.py --tables paper_results/tables
+```
+
+It writes `frontend/src/content/thesis_results.json` and checks the corpus counts against the
+text of Chapter 3.
+

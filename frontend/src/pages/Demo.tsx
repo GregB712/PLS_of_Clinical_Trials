@@ -3,7 +3,7 @@ import { api, ApiError } from "../lib/api";
 import { useAsync } from "../hooks/useAsync";
 import { Banner, Card, Disclaimer, PageHeader, Segmented, Spinner, Switch } from "../components/ui";
 import { loadPrefs } from "../lib/prefs";
-import type { BackendInfo, SummarizeResponse } from "../lib/types";
+import type { BackendInfo, SummarizeResponse, TrialDetail } from "../lib/types";
 
 const STYLES = {
   Overview: "Summarize this clinical trial for a non-specialist in plain language.",
@@ -28,6 +28,12 @@ export function Demo() {
   const backends = useAsync(() => api.backends(), []);
 
   const [trial, setTrial] = useState("");
+  const original = useAsync<TrialDetail | null>(
+    () => (trial ? api.trial(trial) : Promise.resolve(null)),
+    [trial],
+  );
+  const allSynthetic =
+    !!trials.data?.items.length && trials.data.items.every((t) => t.source === "synthetic");
   const [primary, setPrimary] = useState(prefs.backend);
   const [compare, setCompare] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
@@ -157,6 +163,12 @@ export function Demo() {
               ))}
             </select>
             {trials.error && <Banner kind="error">{trials.error}</Banner>}
+            {allSynthetic && (
+              <p className="footnote text-ink-3">
+                These trials are synthetic samples made for this showcase. The study used real
+                Novartis trials, which can&apos;t be shared.
+              </p>
+            )}
 
             {uploadsEnabled ? (
               <label
@@ -289,7 +301,7 @@ export function Demo() {
           </div>
           {busy && results.length === 0 && <Spinner label="Running the model…" />}
           {error && <Banner kind="error">{error}</Banner>}
-          {!busy && !error && results.length === 0 && (
+          {!busy && !error && results.length === 0 && !trial && (
             <div className="rounded-[1.125rem] border border-dashed border-line px-6 py-16 text-center">
               <p className="font-serif text-lg text-ink-2">The summary will appear here.</p>
               <p className="footnote mt-1 text-ink-3">
@@ -324,8 +336,71 @@ export function Demo() {
             </article>
           ))}
           {results.some((r) => r.data) && <Disclaimer />}
+          {!busy && !error && results.length === 0 && trial && (
+            <p className="footnote text-ink-3">
+              Press Generate summary to write one. The original document is below.
+            </p>
+          )}
+          {trial && original.loading && <Spinner label="Loading the original document…" />}
+          {original.error && <Banner kind="error">{original.error}</Banner>}
+          {original.data && <OriginalDocument key={original.data.protocol_id} trial={original.data} />}
         </section>
       </div>
     </div>
+  );
+}
+
+const VIEWS = ["Technical report", "Patient summary"] as const;
+
+/** The selected trial as stored: its technical report and its human-written patient summary. */
+function OriginalDocument({ trial }: { trial: TrialDetail }) {
+  const [view, setView] = useState<(typeof VIEWS)[number]>("Technical report");
+  const sections = view === "Technical report" ? trial.report_sections : trial.summary_sections;
+  const entries = Object.entries(sections);
+  return (
+    <article className="card arrive overflow-hidden" aria-labelledby="original-title">
+      <header className="space-y-3 border-b border-line px-5 pb-4 pt-5 sm:px-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 id="original-title" className="title-2 text-ink">
+            Original: <span className="tabular-nums">{trial.protocol_id}</span>
+          </h2>
+          <span className="footnote text-ink-3">Source: {trial.source}</span>
+        </div>
+        {trial.source === "synthetic" && (
+          <Banner kind="info">
+            Synthetic sample for showcasing. The drug, condition and results are invented; nothing
+            here describes a real trial.
+          </Banner>
+        )}
+        <div className="max-w-sm">
+          <Segmented label="Document" options={VIEWS} value={view} onChange={setView} />
+        </div>
+        <p className="footnote text-ink-3">
+          {view === "Technical report"
+            ? "What the model reads: the sponsor's results report."
+            : "What a person wrote for patients. Compare the generated summary with this."}
+        </p>
+      </header>
+      {entries.length === 0 ? (
+        <p className="px-5 py-4 text-sm text-ink-3 sm:px-6">This document has no sections.</p>
+      ) : (
+        <dl className="grouped max-h-[32rem] overflow-y-auto">
+          {entries.map(([name, text]) => (
+            <div key={name} className="px-5 py-4 sm:px-6">
+              <dt className="text-sm font-semibold text-ink">{name}</dt>
+              <dd
+                className={
+                  view === "Patient summary"
+                    ? "prose-read mt-1 text-ink"
+                    : "mt-1 text-[0.9375rem] leading-relaxed text-ink-2"
+                }
+              >
+                {text}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
+    </article>
   );
 }

@@ -23,6 +23,18 @@ const initials = paper.meta.author
 
 export function Paper() {
   const active = useActiveSection(TOC_IDS);
+  const tocRef = useRef<HTMLElement>(null);
+
+  // Keep the current section visible in the sidebar list (it scrolls on its own).
+  useEffect(() => {
+    const nav = tocRef.current;
+    const link = nav?.querySelector<HTMLElement>('[aria-current="location"]');
+    if (!nav || !link) return;
+    const top = link.getBoundingClientRect().top - nav.getBoundingClientRect().top + nav.scrollTop;
+    if (top < nav.scrollTop + 40 || top > nav.scrollTop + nav.clientHeight - 80) {
+      nav.scrollTop = Math.max(0, top - nav.clientHeight / 3);
+    }
+  }, [active]);
 
   // The article mounts after the route chunk loads, so the browser's own jump to
   // #fragment has already happened against an empty page. Redo it once.
@@ -37,7 +49,10 @@ export function Paper() {
 
       <div className="xl:grid xl:grid-cols-[15rem_minmax(0,42.5rem)_minmax(0,1fr)] xl:gap-12">
         <aside className="hidden xl:block" aria-label="Contents">
-          <nav className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pb-8 pr-2 [scrollbar-width:thin]">
+          <nav
+            ref={tocRef}
+            className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pb-8 pr-2 [scrollbar-width:thin]"
+          >
             <p className="mb-3 text-sm font-semibold text-ink">Contents</p>
             <Toc active={active} />
           </nav>

@@ -462,6 +462,16 @@ input[type="checkbox"] {
     margin: 2.4em calc(50% - min(50vw - 1rem, 28rem));
     scroll-margin-top: 5rem;
   }
+  /* With the contents sidebar showing (xl), a breakout would run into it: stay in the column. */
+  @media (min-width: 1280px) {
+    .article figure {
+      margin-inline: 0;
+    }
+  }
+  .article figure a.figure-zoom {
+    display: block;
+    cursor: zoom-in;
+  }
   .article figure img {
     display: block;
     margin-inline: auto;
@@ -579,6 +589,12 @@ input[type="checkbox"] {
 .chart .recharts-cartesian-axis-line,
 .chart .recharts-cartesian-axis-tick-line {
   stroke: var(--color-line);
+}
+.chart .recharts-errorBar line {
+  stroke: var(--color-ink);
+}
+.chart .recharts-reference-line-line {
+  stroke: var(--color-ink-3);
 }
 .chart .recharts-tooltip-cursor {
   fill: var(--color-sunken);

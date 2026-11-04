@@ -20,6 +20,29 @@ For full details, please refer to the [ikee.lib.auth.gr link](http://ikee.lib.au
 
 ---
 
+## 🌐 Live Demo
+
+**[pls-of-clinical-trials.vercel.app](https://pls-of-clinical-trials.vercel.app)**: a read-only
+demo running on a small synthetic sample (the Novartis documents can't be redistributed). The
+dataset statistics and model results shown come from the full study, and the updated thesis can
+be read on the **Paper** page or as a PDF in [`paper/`](paper/main.pdf).
+See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for how it's deployed.
+
+| | |
+|---|---|
+| ![Landing page with the study dataset statistics](docs/screenshots/landing.png) | ![Landing page in dark mode](docs/screenshots/landing-dark.png) |
+| **Home**: a report sentence next to its plain-language rewrite | **Dark mode** follows the system setting |
+| ![Live demo with a generated summary and the original document](docs/screenshots/demo.png) | ![Model comparison with 95% confidence intervals](docs/screenshots/dashboard.png) |
+| **Live demo**: generate a summary and read the original report | **Model comparison**: full-study test-set results with 95% CIs |
+| ![The thesis as a readable article](docs/screenshots/paper.png) | ![Dataset explorer](docs/screenshots/explorer.png) |
+| **Paper**: the thesis as an article, with contents and linked citations | **Dataset explorer**: each report next to its patient summary |
+| ![Research assistant answering with citations](docs/screenshots/research-assistant.png) | <img src="docs/screenshots/landing-mobile.png" alt="Landing page on a phone" width="220"> |
+| **Research assistant**: answers grounded in cited passages | **Mobile** layout |
+
+The screenshots are from the synthetic sample; the trial names, drugs and conditions are invented.
+
+---
+
 ## 📂 Repository Structure
 
 ```

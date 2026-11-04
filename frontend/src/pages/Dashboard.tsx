@@ -3,6 +3,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { api } from "../lib/api";
 import { useAsync } from "../hooks/useAsync";
 import { Banner, Card, PageHeader, Segmented, Spinner } from "../components/ui";
+import { ThesisResults } from "../components/ThesisResults";
 
 const METRICS = ["F1 Score", "ROUGE-1", "ROUGE-2", "ROUGE-L", "BLEU Score"] as const;
 type Metric = (typeof METRICS)[number];
@@ -16,9 +17,19 @@ export function Dashboard() {
   return (
     <div className="space-y-10">
       <PageHeader title="Model comparison">
-        Backends scored on the same examples. These are benchmark results, kept separate from the
-        live demo.
+        Every system scored on the same examples. These are benchmark results, kept separate from
+        the live demo.
       </PageHeader>
+
+      <ThesisResults />
+
+      <div className="max-w-3xl space-y-1.5 border-t border-line pt-10">
+        <h2 className="title-2 text-ink">This deployment: synthetic sample</h2>
+        <p className="text-[0.9375rem] leading-relaxed text-ink-2">
+          Benchmarks stored in this app&apos;s database. Here they run on the bundled synthetic
+          sample, so they show how the pipeline works, not how well the models do.
+        </p>
+      </div>
 
       {experiments.loading && <Spinner />}
       {experiments.error && <Banner kind="error">{experiments.error}</Banner>}
